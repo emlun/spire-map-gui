@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import pako from 'pako';
 import base64 from 'base64-js';
+import _ from 'underscore';
 
-import { MapDef } from 'types/map';
+import { FloorNum, MapDef } from 'types/map';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
@@ -26,10 +27,49 @@ function computeTreeRef() {
   }
 }
 
+function* findAllPaths(map: MapDef) {
+  const numFloors = _(map).size();
+  let floorStack: number[] = [0];
+  if (map[1].length > 0) {
+    while (true) {
+      if (floorStack.length === 0) {
+        break;
+      } else if (floorStack.length < numFloors) {
+        floorStack.push(_.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections));
+      } else {
+        yield _(floorStack).map((ri, f) => map[f + 1 as FloorNum][ri].typ);
+
+        while (floorStack.length > 1) {
+          const secondLastRoom = map[floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
+          const nextRoom = floorStack[floorStack.length - 1] + 1;
+          if (_(secondLastRoom.connections).contains(nextRoom)) {
+            floorStack[floorStack.length - 1] = nextRoom;
+            break;
+          } else {
+            floorStack.pop();
+          }
+        }
+
+        if (floorStack.length === 1) {
+          ++floorStack[0];
+          if (floorStack[0] >= map[1].length) {
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
 
   const mapString = JSON.stringify(map);
+
+  let numPaths = 0;
+  for (const path of findAllPaths(map)) {
+    numPaths += 1;
+  }
 
   useEffect(
     () => {
@@ -70,10 +110,16 @@ function App() {
       visible={ true }
     />
 
-    <MapEditor
-      map={ map }
-      setMap={ setMap }
-    />
+    <div className={ styles.content }>
+      <MapEditor
+        map={ map }
+        setMap={ setMap }
+      />
+
+      <div className={ styles.info }>
+        Number of paths: { numPaths }
+      </div>
+    </div>
 
     <footer className={ styles.footer }>
       <div>

@@ -4,7 +4,10 @@
     "@babel/plugin-proposal-class-properties"
   ],
   "presets": [
-    [ "@babel/preset-env", { "modules": false } ],
+    [ "@babel/preset-env", {
+      "modules": false,
+      "targets": "> 0.25%, not dead"
+    }],
     "@babel/preset-typescript",
     "@babel/preset-react"
   ]
