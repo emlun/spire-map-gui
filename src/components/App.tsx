@@ -27,7 +27,7 @@ function computeTreeRef() {
   }
 }
 
-function* findAllPaths(map: MapDef) {
+function* findAllPaths(map: MapDef): Generator<RoomType[]> {
   const numFloors = _(map).size();
   let floorStack: number[] = [0];
   if (map[1].length > 0) {
@@ -37,7 +37,7 @@ function* findAllPaths(map: MapDef) {
       } else if (floorStack.length < numFloors) {
         floorStack = [...floorStack, _.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections)];
       } else {
-        yield _(floorStack).map((ri, f) => map[f + 1 as FloorNum][ri].typ);
+        yield floorStack.map((ri, f) => map[f + 1 as FloorNum][ri].typ);
 
         while (floorStack.length > 1) {
           const secondLastRoom = map[floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
