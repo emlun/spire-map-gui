@@ -21,6 +21,14 @@
   margin: 0.5em 0;
 }
 
+.highlight-paths-button {
+  margin-left: 1em;
+}
+
+.highlight-paths-button-selected {
+  border-color: blue;
+}
+
 .info p.room-type-checkboxes {
   padding-left: 3em;
 }

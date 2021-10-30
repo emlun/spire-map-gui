@@ -27,7 +27,7 @@ function computeTreeRef() {
   }
 }
 
-function* findAllPaths(map: MapDef): Generator<RoomType[]> {
+function* findAllPaths(map: MapDef): Generator<number[]> {
   const numFloors = _(map).size();
   let floorStack: number[] = [0];
   if (map[1].length > 0) {
@@ -37,7 +37,7 @@ function* findAllPaths(map: MapDef): Generator<RoomType[]> {
       } else if (floorStack.length < numFloors) {
         floorStack = [...floorStack, _.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections)];
       } else {
-        yield floorStack.map((ri, f) => map[f + 1 as FloorNum][ri].typ);
+        yield floorStack;
 
         while (floorStack.length > 1) {
           const secondLastRoom = map[floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
@@ -61,11 +61,11 @@ function* findAllPaths(map: MapDef): Generator<RoomType[]> {
   }
 }
 
-function findMostOfTypes(roomTypes: RoomType[], map: MapDef) {
+function findMostOfTypes(roomTypes: RoomType[], map: MapDef): [number, number[][]] {
   let maxn = 0;
-  let maxPaths: RoomType[][] = [];
+  let maxPaths: number[][] = [];
   for (const path of findAllPaths(map)) {
-    const n = path.filter((rt: RoomType) => _(roomTypes).contains(rt)).length;
+    const n = path.filter((ri, f) => _(roomTypes).contains(map[f + 1 as FloorNum][ri].typ)).length;
     if (n > maxn) {
       maxn = n;
       maxPaths = [path];
@@ -77,9 +77,52 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef) {
   return [maxn, maxPaths];
 }
 
+function PathsCounter({
+  label,
+  map,
+  selected,
+  types,
+  onHighlight,
+}: {
+  label?: React.ReactNode,
+  map: MapDef,
+  selected?: RoomType[],
+  types: RoomType[],
+  onHighlight?: (types: RoomType[] | undefined) => void,
+}) {
+  const [num, paths] = findMostOfTypes(types, map);
+  const isSelected = _.isEqual(selected, types);
+  return <p>
+    { label }
+    { ': ' }
+    { num }
+    { onHighlight && !isSelected &&
+      <button type="button"
+        className={ styles["highlight-paths-button"] }
+        onClick={ () => onHighlight(types) }
+      >
+        Show
+      </button>
+    }
+    { onHighlight && isSelected &&
+      <button type="button"
+        className={ styles["highlight-paths-button"] + ' ' + styles["highlight-paths-button-selected"] }
+        onClick={ () => onHighlight(undefined) }
+      >
+        Stop showing
+      </button>
+    }
+  </p>;
+}
+
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
-  const [selectedRoomTypes, setSelectedRoomTypes] = useState<{ [rt in RoomType]?: boolean }>({});
+  const [customCountTypesSelection, setCustomCountTypesSelection] = useState<{ [rt in RoomType]?: boolean }>({});
+  const [highlightPathTypes, setHighlightPathTypes] = useState<RoomType[]>();
+  const [isHighlightCustom, setIsHighlightCustom] = useState(false);
+
+  const customCountTypes = _(customCountTypesSelection).chain().pick(b => b || false).keys().value() as RoomType[];
+  const highlightedPath = highlightPathTypes && findMostOfTypes(highlightPathTypes, map)[1];
 
   const mapString = JSON.stringify(map);
 
@@ -88,12 +131,21 @@ function App() {
     numPaths += 1;
   }
 
-  const setCheckPathCountType = (rt: RoomType, selected: boolean) => {
-    setSelectedRoomTypes(sel => ({
+  const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
+    setCustomCountTypesSelection(sel => ({
       ...sel,
       [rt]: selected,
     }));
   };
+
+  useEffect(
+    () => {
+      if (isHighlightCustom) {
+        setHighlightPathTypes(customCountTypes);
+      }
+    },
+    [customCountTypesSelection]
+  );
 
   useEffect(
     () => {
@@ -136,29 +188,55 @@ function App() {
 
     <div className={ styles.content }>
       <MapEditor
+        highlightPaths={ highlightedPath }
         map={ map }
         setMap={ setMap }
       />
 
       <div className={ styles.info }>
         <p>Number of paths: { numPaths }</p>
-        <p>Max elites + supers: { findMostOfTypes(["elite", "super"], map)[0] }</p>
-        <p>Max fights: { findMostOfTypes(["fight"], map)[0] }</p>
-        <p>Max stores: { findMostOfTypes(["store"], map)[0] }</p>
-        <p>Max events: { findMostOfTypes(["event"], map)[0] }</p>
-        <p>Max elites + rests: { findMostOfTypes(["elite", "rest"], map)[0] }</p>
-        <p>
-          Max custom:
-          { ' ' }
-          { findMostOfTypes(_(selectedRoomTypes).chain().pick(b => b || false).keys().value() as RoomType[], map)[0] }
-        </p>
+        <PathsCounter
+          label="Max elites + rests"
+          types={ ["elite", "rest"] }
+          selected={ highlightPathTypes }
+          map={ map }
+          onHighlight={ setHighlightPathTypes }
+        />
+        <PathsCounter
+          label="Max elites + supers"
+          types={ ["elite", "super"] }
+          selected={ highlightPathTypes }
+          map={ map }
+          onHighlight={ setHighlightPathTypes }
+        />
+        <PathsCounter
+          label="Max fights"
+          types={ ["fight"] }
+          selected={ highlightPathTypes }
+          map={ map }
+          onHighlight={ setHighlightPathTypes }
+        />
+        <PathsCounter
+          label="Max events"
+          types={ ["event"] }
+          selected={ highlightPathTypes }
+          map={ map }
+          onHighlight={ setHighlightPathTypes }
+        />
+        <PathsCounter
+          label="Max custom"
+          types={ customCountTypes }
+          selected={ highlightPathTypes }
+          map={ map }
+          onHighlight={ (types) => { setHighlightPathTypes(types); setIsHighlightCustom(true); } }
+        />
         <p className={ styles["room-type-checkboxes"] }>
           { roomTypes.map((rt, i) => {
             const id = `checkbox-room-type-${i}`;
             return <span key={ rt } className={ styles["room-type-checkbox"] }>
               <input type="checkbox"
                 id={ id }
-                onChange={ (event) => setCheckPathCountType(rt, event.target.checked) }
+                onChange={ (event) => setCustomCountTypes(rt, event.target.checked) }
               />
               <label htmlFor={ id } className={ styles["checkbox-label"] }>{ rt }</label>
             </span>;

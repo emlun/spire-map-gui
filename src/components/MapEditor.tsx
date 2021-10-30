@@ -26,11 +26,12 @@ export const initialMap: MapDef = {
 
 
 interface Props {
+  highlightPaths?: number[][],
   map: MapDef,
   setMap: (map: MapDef | ((map: MapDef) => MapDef)) => void,
 }
 
-function MapEditor({ map, setMap }: Props) {
+function MapEditor({ highlightPaths, map, setMap }: Props) {
 
   const [selectedRoom, setSelectedRoom] = useState<[FloorNum, number] | null>(null);
   const canvasRefs = {
@@ -180,12 +181,20 @@ function MapEditor({ map, setMap }: Props) {
         floor.forEach((room, ri) => {
           const roomX = (ri * 2 + 1) / (floor.length * 2) * canvas.width;
           room.connections.forEach((connection) => {
-            const nextFloorRi = connection - 1;
-            const nextRoomX = (nextFloorRi * 2 + 3) / (map[f + 1 as FloorNum].length * 2) * canvas.width;
+            const nextFloorRi = connection;
+            const nextRoomX = (nextFloorRi * 2 + 1) / (map[f + 1 as FloorNum].length * 2) * canvas.width;
             ctx.beginPath();
-            ctx.strokeStyle = 'black';
-            ctx.moveTo(nextRoomX, 0);
-            ctx.lineTo(roomX, canvas.height);
+
+            if (highlightPaths && f < 15 && highlightPaths.some(path => path[f - 1] === ri && path[f] === nextFloorRi)) {
+              ctx.strokeStyle = 'red';
+              ctx.lineWidth = 4;
+            } else {
+              ctx.strokeStyle = 'black';
+              ctx.lineWidth = 1;
+            }
+
+            ctx.moveTo(nextRoomX, 4);
+            ctx.lineTo(roomX, canvas.height - 4);
             ctx.stroke();
           });
         });
