@@ -35,7 +35,7 @@ function* findAllPaths(map: MapDef) {
       if (floorStack.length === 0) {
         break;
       } else if (floorStack.length < numFloors) {
-        floorStack.push(_.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections));
+        floorStack = [...floorStack, _.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections)];
       } else {
         yield _(floorStack).map((ri, f) => map[f + 1 as FloorNum][ri].typ);
 
@@ -43,15 +43,15 @@ function* findAllPaths(map: MapDef) {
           const secondLastRoom = map[floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
           const nextRoom = floorStack[floorStack.length - 1] + 1;
           if (_(secondLastRoom.connections).contains(nextRoom)) {
-            floorStack[floorStack.length - 1] = nextRoom;
+            floorStack = floorStack.map((ri, i) => i === floorStack.length - 1 ? nextRoom : ri);
             break;
           } else {
-            floorStack.pop();
+            floorStack = floorStack.filter((_, i) => i < floorStack.length - 1);
           }
         }
 
         if (floorStack.length === 1) {
-          ++floorStack[0];
+          floorStack = [floorStack[0] + 1];
           if (floorStack[0] >= map[1].length) {
             break;
           }
