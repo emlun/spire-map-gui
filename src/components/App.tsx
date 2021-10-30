@@ -117,7 +117,11 @@ function PathsCounter({
 
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
-  const [customCountTypesSelection, setCustomCountTypesSelection] = useState<{ [rt in RoomType]?: boolean }>({});
+  const [customCountTypesSelection, setCustomCountTypesSelection] = useState<{ [rt in RoomType]?: boolean }>({
+    "elite": true,
+    "rest": true,
+    "super": true,
+  });
   const [highlightPathTypes, setHighlightPathTypes] = useState<RoomType[]>();
   const [isHighlightCustom, setIsHighlightCustom] = useState(false);
 
@@ -236,6 +240,7 @@ function App() {
             return <span key={ rt } className={ styles["room-type-checkbox"] }>
               <input type="checkbox"
                 id={ id }
+                checked={ customCountTypesSelection[rt] }
                 onChange={ (event) => setCustomCountTypes(rt, event.target.checked) }
               />
               <label htmlFor={ id } className={ styles["checkbox-label"] }>{ rt }</label>
