@@ -1,0 +1,15 @@
+html, body {
+  font-family: arial;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #999;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #222;
+}

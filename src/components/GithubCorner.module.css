@@ -1,0 +1,7 @@
+.GithubCorner {
+  transition: opacity 0.2s;
+}
+
+.hidden {
+  opacity: 0;
+}

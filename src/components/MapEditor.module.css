@@ -1,0 +1,43 @@
+.map {
+  width: 47rem;
+}
+
+.floor {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+}
+
+.floor-num {
+  flex-grow: 0;
+  text-align: center;
+  width: 3rem;
+}
+
+.room {
+  flex-grow: 1;
+  flex-shrink: 1;
+  text-align: center;
+  flex-basis: 5rem;
+}
+
+.room-button {
+}
+
+.connect-button.room-selected {
+  border: 2px solid red;
+}
+
+.connect-button.room-selected-neighbor {
+  border: 2px solid blue;
+}
+
+.add-drop-floor {
+  width: 2rem;
+}
+
+.connection-canvas {
+  margin-left: 3rem;
+  height: 2.3rem;
+  width: 40rem;
+}
