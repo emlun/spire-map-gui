@@ -69,7 +69,6 @@ function MapEditor({ map, setMap }: Props) {
   }
 
   const addRoom = (f: FloorNum) => {
-    console.log("addRoom", f);
     setMap(map => {
       const thisFloor = [
         ...map[f],
@@ -110,7 +109,6 @@ function MapEditor({ map, setMap }: Props) {
   };
 
   const dropRoom = (f: FloorNum) => {
-    console.log("addRoom", f);
     setMap(map => {
       const thisFloor = map[f].filter((room, ri) => ri < map[f].length - 1);
       if (f > 1) {
@@ -152,8 +150,6 @@ function MapEditor({ map, setMap }: Props) {
     const hif = f1 < f2 ? f2 : f1;
     const lori = f1 < f2 ? ri1 : ri2;
     const hiri = f1 < f2 ? ri2 : ri1;
-    console.log('toggle', selectedRoom, f1, ri1, f2, ri2);
-    console.log('toggle', lof, lori, hif, hiri);
     setMap(map => ({
       ...map,
       [lof]: map[lof].map((room, ri) => {
@@ -198,7 +194,6 @@ function MapEditor({ map, setMap }: Props) {
   };
 
   drawConnections();
-  console.log(selectedRoom);
 
   return <div className={ styles['map'] }>
 
