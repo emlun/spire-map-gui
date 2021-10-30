@@ -4,6 +4,7 @@ import base64 from 'base64-js';
 import _ from 'underscore';
 
 import { FloorNum, MapDef, Path, RoomType, roomTypes } from 'types/map';
+import FloatInput from 'components/FloatInput';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
@@ -77,6 +78,26 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef): [number, Path[]] {
   return [maxn, maxPaths];
 }
 
+function rankPaths(
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
+  map: MapDef,
+  gold: number,
+  numPaths: number,
+): [number, Path][] {
+  let paths: [number, Path][] = [];
+  for (const path of findAllPaths(map)) {
+    const value = path.reduce(
+      (v, ri, f) => {
+        const fl = f + 1 as FloorNum;
+        return v + valueFunc(map[fl][ri]?.typ, fl, gold);
+      },
+      0,
+    );
+    paths.push([value, path]);
+  }
+  return _(paths).chain().sortBy(([v, path]) => -v).take(numPaths).value();
+}
+
 function PathsCounter({
   label,
   map,
@@ -115,6 +136,54 @@ function PathsCounter({
   </p>;
 }
 
+function PathRanking({
+  gold,
+  highlightedPaths,
+  label,
+  map,
+  onHighlight,
+  valueFunc,
+}: {
+  gold: number,
+  highlightedPaths?: Path[],
+  label?: React.ReactNode,
+  map: MapDef,
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
+  onHighlight?: (path: Path[] | undefined) => void,
+}) {
+  const ranking = rankPaths(valueFunc, map, gold, 10);
+  return <div className={ styles["path-ranking"] }>
+    { label }
+    { ':' }
+
+    <ol>
+      { ranking.map(([value, path], i) => {
+        const isSelected = _(highlightedPaths).isEqual([path]);
+        return <li key={ i }>
+          { value.toFixed(2) }
+          { ' ' }
+          { onHighlight && !isSelected &&
+            <button type="button"
+              className={ styles["highlight-paths-button"] }
+              onClick={ () => onHighlight([path]) }
+            >
+              Show
+            </button>
+          }
+          { onHighlight && isSelected &&
+            <button type="button"
+              className={ styles["highlight-paths-button"] + ' ' + styles["highlight-paths-button-selected"] }
+              onClick={ () => onHighlight(undefined) }
+            >
+              Stop showing
+            </button>
+          }
+        </li>;
+      })}
+    </ol>
+  </div>;
+}
+
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
   const [customCountTypesSelection, setCustomCountTypesSelection] = useState<{ [rt in RoomType]?: boolean }>({
@@ -122,11 +191,21 @@ function App() {
     "rest": true,
     "super": true,
   });
+  const [highlightedPaths, setHighlightedPaths] = useState<Path[]>();
   const [highlightPathTypes, setHighlightPathTypes] = useState<RoomType[]>();
   const [isHighlightCustom, setIsHighlightCustom] = useState(false);
 
+  const [chestValue, setChestValue] = useState(0.5);
+  const [eliteValue, setEliteValue] = useState(1.2);
+  const [eventValue, setEventValue] = useState(0.8);
+  const [fightValue, setFightValue] = useState(0.3);
+  const [restValue, setRestValue] = useState(1);
+  const [storeValue, setStoreValue] = useState(0.3);
+  const [storeGoldValue, setStoreGoldValue] = useState(0.4);
+  const [superValue, setSuperValue] = useState(1.3);
+  const [gold, setGold] = useState(99);
+
   const customCountTypes = _(customCountTypesSelection).chain().pick(b => b || false).keys().value() as RoomType[];
-  const highlightedPath = highlightPathTypes && findMostOfTypes(highlightPathTypes, map)[1];
 
   const mapString = JSON.stringify(map);
 
@@ -135,6 +214,20 @@ function App() {
     numPaths += 1;
   }
 
+  const setHighlightTypes = (types: RoomType[] | undefined) => {
+    setHighlightPathTypes(types);
+    if (types) {
+      setHighlightedPaths(findMostOfTypes(types, map)[1]);
+    } else {
+      setHighlightedPaths(undefined);
+    }
+  };
+
+  const setHighlightRanked = (paths: Path[] | undefined) => {
+    setHighlightPathTypes(undefined);
+    setHighlightedPaths(paths);
+  };
+
   const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
     setCustomCountTypesSelection(sel => ({
       ...sel,
@@ -142,10 +235,37 @@ function App() {
     }));
   };
 
+  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number) => {
+    switch (rt) {
+      case "chest":
+        return chestValue;
+
+      case "elite":
+        return eliteValue;
+
+      case "event":
+        return eventValue;
+
+      case "fight":
+        return fightValue;
+
+      case "rest":
+        return restValue;
+
+      case "store":
+        return storeValue + storeGoldValue * gold / 100;
+
+      case "super":
+        return superValue;
+    }
+
+    return 0;
+  };
+
   useEffect(
     () => {
       if (isHighlightCustom) {
-        setHighlightPathTypes(customCountTypes);
+        setHighlightTypes(customCountTypes);
       }
     },
     [customCountTypesSelection]
@@ -192,7 +312,7 @@ function App() {
 
     <div className={ styles.content }>
       <MapEditor
-        highlightPaths={ highlightedPath }
+        highlightPaths={ highlightedPaths }
         map={ map }
         setMap={ setMap }
       />
@@ -204,35 +324,35 @@ function App() {
           types={ ["elite", "rest"] }
           selected={ highlightPathTypes }
           map={ map }
-          onHighlight={ setHighlightPathTypes }
+          onHighlight={ setHighlightTypes }
         />
         <PathsCounter
           label="Max elites + supers"
           types={ ["elite", "super"] }
           selected={ highlightPathTypes }
           map={ map }
-          onHighlight={ setHighlightPathTypes }
+          onHighlight={ setHighlightTypes }
         />
         <PathsCounter
           label="Max fights"
           types={ ["fight"] }
           selected={ highlightPathTypes }
           map={ map }
-          onHighlight={ setHighlightPathTypes }
+          onHighlight={ setHighlightTypes }
         />
         <PathsCounter
           label="Max events"
           types={ ["event"] }
           selected={ highlightPathTypes }
           map={ map }
-          onHighlight={ setHighlightPathTypes }
+          onHighlight={ setHighlightTypes }
         />
         <PathsCounter
           label="Max custom"
           types={ customCountTypes }
           selected={ highlightPathTypes }
           map={ map }
-          onHighlight={ (types) => { setHighlightPathTypes(types); setIsHighlightCustom(true); } }
+          onHighlight={ (types) => { setHighlightTypes(types); setIsHighlightCustom(true); } }
         />
         <p className={ styles["room-type-checkboxes"] }>
           { roomTypes.map((rt, i) => {
@@ -248,6 +368,51 @@ function App() {
           })}
         </p>
 
+        <p>Room values:</p>
+        <p>
+          <label className={ styles["value-input-label"] }>Chest:</label>
+          <FloatInput value={ chestValue } onChange={ setChestValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Elite:</label>
+          <FloatInput value={ eliteValue } onChange={ setEliteValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Event:</label>
+          <FloatInput value={ eventValue } onChange={ setEventValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Fight:</label>
+          <FloatInput value={ fightValue } onChange={ setFightValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Rest:</label>
+          <FloatInput value={ restValue } onChange={ setRestValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Store:</label>
+          <FloatInput value={ storeValue } onChange={ setStoreValue }/>
+          { ' + ' }
+          <FloatInput value={ storeGoldValue } onChange={ setStoreGoldValue }/>
+          { ' per 100 gold' }
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Super:</label>
+          <FloatInput value={ superValue } onChange={ setSuperValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Current gold:</label>
+          <FloatInput value={ gold } onChange={ setGold }/>
+        </p>
+
+        <PathRanking
+          gold={ gold }
+          highlightedPaths={ highlightedPaths }
+          label="Most valuable paths"
+          map={ map }
+          valueFunc={ valuateRoom }
+          onHighlight={ setHighlightRanked }
+        />
       </div>
     </div>
 
