@@ -198,11 +198,11 @@ function MapEditor({ map, setMap }: Props) {
   return <div className={ styles['map'] }>
 
     { floorNums.map(f =>
-      <>
+      <React.Fragment key={`floor-${f}`}>
         { f < 15 &&
           <canvas ref={ canvasRefCallbacks[f] } className={ styles['connection-canvas'] } /> }
 
-        <div key={`floor-${f}`} className={ styles['floor'] }>
+        <div className={ styles['floor'] }>
           <span className={ styles["floor-num"] }>{ f }</span>
 
           { map[f].map((room, ri) => {
@@ -212,7 +212,7 @@ function MapEditor({ map, setMap }: Props) {
               || (f < 15 && selectedRoom && selectedRoom[0] === (f + 1))
             ));
 
-            return <div id={`room-${ri}`} className={ styles['room'] }>
+            return <div key={`room-${ri}`} className={ styles['room'] }>
               <button type="button"
                 className={ styles["room-button"] }
                 onClick={ () => cycleRoomType(f, ri) }
@@ -256,7 +256,7 @@ function MapEditor({ map, setMap }: Props) {
             +
           </button>
         </div>
-      </>
+      </React.Fragment>
     )}
 
   </div>;
