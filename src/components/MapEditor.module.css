@@ -1,4 +1,5 @@
 .map {
+  flex-shrink: 0;
   width: 47rem;
 }
 

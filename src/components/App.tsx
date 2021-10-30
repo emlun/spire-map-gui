@@ -3,7 +3,7 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
-import { FloorNum, MapDef } from 'types/map';
+import { FloorNum, MapDef, RoomType, roomTypes } from 'types/map';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
@@ -61,8 +61,25 @@ function* findAllPaths(map: MapDef): Generator<RoomType[]> {
   }
 }
 
+function findMostOfTypes(roomTypes: RoomType[], map: MapDef) {
+  let maxn = 0;
+  let maxPaths: RoomType[][] = [];
+  for (const path of findAllPaths(map)) {
+    const n = path.filter((rt: RoomType) => _(roomTypes).contains(rt)).length;
+    if (n > maxn) {
+      maxn = n;
+      maxPaths = [path];
+    } else if (n == maxn) {
+      maxPaths.push(path)
+    }
+  }
+
+  return [maxn, maxPaths];
+}
+
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
+  const [selectedRoomTypes, setSelectedRoomTypes] = useState<{ [rt in RoomType]?: boolean }>({});
 
   const mapString = JSON.stringify(map);
 
@@ -70,6 +87,13 @@ function App() {
   for (const path of findAllPaths(map)) {
     numPaths += 1;
   }
+
+  const setCheckPathCountType = (rt: RoomType, selected: boolean) => {
+    setSelectedRoomTypes(sel => ({
+      ...sel,
+      [rt]: selected,
+    }));
+  };
 
   useEffect(
     () => {
@@ -117,7 +141,30 @@ function App() {
       />
 
       <div className={ styles.info }>
-        Number of paths: { numPaths }
+        <p>Number of paths: { numPaths }</p>
+        <p>Max elites + supers: { findMostOfTypes(["elite", "super"], map)[0] }</p>
+        <p>Max fights: { findMostOfTypes(["fight"], map)[0] }</p>
+        <p>Max stores: { findMostOfTypes(["store"], map)[0] }</p>
+        <p>Max events: { findMostOfTypes(["event"], map)[0] }</p>
+        <p>Max elites + rests: { findMostOfTypes(["elite", "rest"], map)[0] }</p>
+        <p>
+          Max custom:
+          { ' ' }
+          { findMostOfTypes(_(selectedRoomTypes).chain().pick(b => b || false).keys().value() as RoomType[], map)[0] }
+        </p>
+        <p className={ styles["room-type-checkboxes"] }>
+          { roomTypes.map((rt, i) => {
+            const id = `checkbox-room-type-${i}`;
+            return <span key={ rt } className={ styles["room-type-checkbox"] }>
+              <input type="checkbox"
+                id={ id }
+                onChange={ (event) => setCheckPathCountType(rt, event.target.checked) }
+              />
+              <label htmlFor={ id } className={ styles["checkbox-label"] }>{ rt }</label>
+            </span>;
+          })}
+        </p>
+
       </div>
     </div>
 

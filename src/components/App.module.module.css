@@ -17,6 +17,22 @@
   padding: 0 2em;
 }
 
+.info p {
+  margin: 0.5em 0;
+}
+
+.info p.room-type-checkboxes {
+  padding-left: 3em;
+}
+
+.room-type-checkbox {
+  display: inline-block;
+}
+
+.checkbox-label {
+  margin-right: 1em;
+}
+
 .footer {
   border-top: 1px solid rgba(128, 128, 128, 0.5);
   color: #aaa;
