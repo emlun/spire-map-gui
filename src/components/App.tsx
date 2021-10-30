@@ -3,7 +3,7 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, RoomType, roomTypes } from 'types/map';
+import { FloorNum, MapDef, Path, RoomType, roomTypes } from 'types/map';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
@@ -27,9 +27,9 @@ function computeTreeRef() {
   }
 }
 
-function* findAllPaths(map: MapDef): Generator<number[]> {
+function* findAllPaths(map: MapDef): Generator<Path> {
   const numFloors = _(map).size();
-  let floorStack: number[] = [0];
+  let floorStack: Path = [0];
   if (map[1].length > 0) {
     while (true) {
       if (floorStack.length === 0) {
@@ -61,9 +61,9 @@ function* findAllPaths(map: MapDef): Generator<number[]> {
   }
 }
 
-function findMostOfTypes(roomTypes: RoomType[], map: MapDef): [number, number[][]] {
+function findMostOfTypes(roomTypes: RoomType[], map: MapDef): [number, Path[]] {
   let maxn = 0;
-  let maxPaths: number[][] = [];
+  let maxPaths: Path[] = [];
   for (const path of findAllPaths(map)) {
     const n = path.filter((ri, f) => _(roomTypes).contains(map[f + 1 as FloorNum][ri].typ)).length;
     if (n > maxn) {

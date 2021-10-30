@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, floorNums, roomTypes } from 'types/map';
+import { FloorNum, MapDef, Path, floorNums, roomTypes } from 'types/map';
 
 import styles from './MapEditor.module.css';
 
@@ -26,7 +26,7 @@ export const initialMap: MapDef = {
 
 
 interface Props {
-  highlightPaths?: number[][],
+  highlightPaths?: Path[],
   map: MapDef,
   setMap: (map: MapDef | ((map: MapDef) => MapDef)) => void,
 }
