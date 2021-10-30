@@ -70,18 +70,66 @@ function MapEditor({ map, setMap }: Props) {
 
   const addRoom = (f: FloorNum) => {
     console.log("addRoom", f);
-    setMap(map => ({
-      ...map,
-      [f]: [...map[f], { typ: "fight", connections: [] }]
-    }));
+    setMap(map => {
+      const thisFloor = [
+        ...map[f],
+        {
+          typ: "fight",
+          connections:
+            (f < 15 && map[f + 1 as FloorNum].length > 0)
+            ? [map[f + 1 as FloorNum].length - 1]
+            : [],
+        }
+      ];
+      if (f > 1) {
+        const fprev = f - 1 as FloorNum;
+        return {
+          ...map,
+          [f]: thisFloor,
+          [fprev]: map[fprev].map((room, ri) => {
+            if (ri === map[fprev].length - 1) {
+              return {
+                ...room,
+                connections: [
+                  ...room.connections,
+                  thisFloor.length - 1,
+                ],
+              };
+            } else {
+              return room;
+            }
+          }),
+        };
+      } else {
+        return {
+          ...map,
+          [f]: thisFloor,
+        };
+      }
+    });
   };
 
   const dropRoom = (f: FloorNum) => {
     console.log("addRoom", f);
-    setMap(map => ({
-      ...map,
-      [f]: map[f].filter((room, ri) => ri < map[f].length - 1),
-    }));
+    setMap(map => {
+      const thisFloor = map[f].filter((room, ri) => ri < map[f].length - 1);
+      if (f > 1) {
+        const fprev = f - 1 as FloorNum;
+        return {
+          ...map,
+          [f]: thisFloor,
+          [fprev]: map[fprev].map((room, ri) => ({
+            ...room,
+            connections: _(room.connections).filter(ri => ri < thisFloor.length),
+          })),
+        }
+      } else {
+        return {
+          ...map,
+          [f]: thisFloor,
+        };
+      }
+    });
   };
 
   const cycleRoomType = (f: FloorNum, ri: number) => {
