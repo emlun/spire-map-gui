@@ -74,7 +74,7 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
       const thisFloor = [
         ...map[f],
         {
-          typ: "fight",
+          typ: f == 9 ? "chest" : "fight",
           connections:
             (f < 15 && map[f + 1 as FloorNum].length > 0)
             ? [map[f + 1 as FloorNum].length - 1]
