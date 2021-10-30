@@ -90,10 +90,7 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
             if (ri === map[fprev].length - 1) {
               return {
                 ...room,
-                connections: [
-                  ...room.connections,
-                  thisFloor.length - 1,
-                ],
+                connections: _.union(room.connections, [thisFloor.length - 1]),
               };
             } else {
               return room;
@@ -111,16 +108,26 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
 
   const dropRoom = (f: FloorNum) => {
     setMap(map => {
-      const thisFloor = map[f].filter((room, ri) => ri < map[f].length - 1);
+      const thisFloor = _(map[f]).initial();
       if (f > 1) {
         const fprev = f - 1 as FloorNum;
         return {
           ...map,
           [f]: thisFloor,
-          [fprev]: map[fprev].map((room, ri) => ({
-            ...room,
-            connections: _(room.connections).filter(ri => ri < thisFloor.length),
-          })),
+          [fprev]: map[fprev].map((room, ri) => {
+            const connections = _(room.connections).filter(ri => ri < thisFloor.length);
+            if (connections.length == 0) {
+              return {
+                ...room,
+                connections: [thisFloor.length - 1],
+              };
+            } else {
+              return {
+                ...room,
+                connections,
+              };
+            }
+          }),
         }
       } else {
         return {
