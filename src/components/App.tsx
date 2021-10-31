@@ -98,7 +98,7 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startCoordinates: C
 }
 
 function rankPaths(
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => number,
   map: MapDef,
   gold: number,
   numPaths: number,
@@ -106,16 +106,19 @@ function rankPaths(
 ): [string, Path[]][] {
   let paths: { [value: string]: Path[] } = {};
   for (const path of findAllPaths(map, startCoordinates)) {
-    const value = floorNums.reduce(
-      (v, f) => {
+    const [value, ] = floorNums.reduce(
+      ([v, fightsBefore], f) => {
         const ri = path[f];
         if (ri === undefined) {
-          return v;
+          return [v, fightsBefore];
         } else {
-          return v + valueFunc(map[f][ri]?.typ, f, gold);
+          return [
+            v + valueFunc(map[f][ri]?.typ, f, gold, fightsBefore),
+            fightsBefore + (map[f][ri]?.typ === "fight" ? 1 : 0),
+          ];
         }
       },
-      0,
+      [0, 0],
     );
     const valueStr = value.toFixed(2);
     const entry = paths[valueStr] || [];
@@ -184,7 +187,7 @@ function PathRanking({
   onHighlight?: (path: Path[] | undefined) => void,
   setTrackMostValuable: (value: boolean) => void,
   startCoordinates: Coordinate[],
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => number,
 }) {
   const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
   return <div className={ styles["path-ranking"] }>
@@ -243,13 +246,15 @@ function App() {
 
   const [eliteValue, setEliteValue] = useState(1.2);
   const [eventValue, setEventValue] = useState(0.8);
-  const [fightValue, setFightValue] = useState(0.3);
+  const [easyFightValue, setEasyFightValue] = useState(0.5);
+  const [hardFightValue, setHardFightValue] = useState(0.4);
   const [restValue, setRestValue] = useState(1);
   const [shopValue, setShopValue] = useState(0.3);
   const [shopGoldValue, setShopGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
   const [treasureValue, setTreasureValue] = useState(0.5);
   const [gold, setGold] = useState(99);
+  const [fightEvents, setFightEvents] = useState(0);
   const [trackMostValuable, setTrackMostValuable] = useState(false);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
   const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
@@ -304,10 +309,12 @@ function App() {
       }
     },
     [
+      easyFightValue,
       eliteValue,
       eventValue,
-      fightValue,
+      fightEvents,
       gold,
+      hardFightValue,
       map,
       restValue,
       shopGoldValue,
@@ -326,7 +333,7 @@ function App() {
     }));
   };
 
-  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number) => {
+  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => {
     switch (rt) {
       case "elite":
         return eliteValue;
@@ -335,7 +342,11 @@ function App() {
         return eventValue;
 
       case "fight":
-        return fightValue;
+        if (fightEvents + fightsBefore <= 2) {
+          return easyFightValue;
+        } else {
+          return hardFightValue;
+        }
 
       case "rest":
         return restValue;
@@ -468,8 +479,12 @@ function App() {
 
         <p>Room values:</p>
         <p>
-          <label className={ styles["value-input-label"] }>Fight:</label>
-          <FloatInput value={ fightValue } onChange={ setFightValue }/>
+          <label className={ styles["value-input-label"] }>Easy fight:</label>
+          <FloatInput value={ easyFightValue } onChange={ setEasyFightValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Hard fight:</label>
+          <FloatInput value={ hardFightValue } onChange={ setHardFightValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Elite:</label>
@@ -501,6 +516,10 @@ function App() {
         <p>
           <label className={ styles["value-input-label"] }>Current gold:</label>
           <FloatInput value={ gold } onChange={ setGold }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Fights in ?s:</label>
+          <FloatInput value={ fightEvents } onChange={ setFightEvents }/>
         </p>
 
         <PathRanking
