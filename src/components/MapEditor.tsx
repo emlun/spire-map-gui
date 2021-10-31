@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, Path, RoomDef, RoomType, floorNums, roomTypes } from 'types/map';
+import { Coordinate, FloorNum, MapDef, Path, RoomDef, RoomType, floorNums, roomTypes } from 'types/map';
 
 import styles from './MapEditor.module.css';
 
@@ -45,17 +45,17 @@ function RoomButton({
 interface Props {
   highlightPaths?: Path[],
   map: MapDef,
-  startFloor: FloorNum,
+  startCoordinate?: Coordinate,
   setMap: (map: MapDef | ((map: MapDef) => MapDef)) => void,
-  setStartFloor: (startFloor: FloorNum | ((startFloor: FloorNum) => FloorNum)) => void,
+  setStartCoordinate: (update: (value: Coordinate | undefined) => (Coordinate | undefined)) => void,
 }
 
 function MapEditor({
   highlightPaths,
   map,
-  startFloor,
+  startCoordinate,
   setMap,
-  setStartFloor,
+  setStartCoordinate,
 }: Props) {
 
   const [selectedRoom, setSelectedRoom] = useState<[FloorNum, number] | null>(null);
@@ -230,8 +230,8 @@ function MapEditor({
               ctx.lineWidth = 1;
             }
 
-            ctx.moveTo(nextRoomX - 8, -10);
-            ctx.lineTo(roomX - 8, canvas.height + 10);
+            ctx.moveTo(nextRoomX, -10);
+            ctx.lineTo(roomX, canvas.height + 10);
             ctx.stroke();
           });
         });
@@ -243,18 +243,13 @@ function MapEditor({
 
   return <div className={ styles['map'] }>
 
-    { floorNums.map(f =>
+    { floorNums.map((f: FloorNum) =>
       <React.Fragment key={`floor-${f}`}>
         { f < 15 &&
           <canvas ref={ canvasRefCallbacks[f] } className={ styles['connection-canvas'] } /> }
 
         <div className={ styles['floor'] }>
-          <button type="button"
-            className={ styles["floor-num"] + ' ' + (startFloor === f ? styles["floor-num-selected"] : '') }
-            onClick={ () => setStartFloor(f) }
-          >
-            { f }
-          </button>
+          <span className={ styles["floor-num"] }>{ f }</span>
 
           { map[f].map((room, ri) => {
             const isSelected = _.isEqual(selectedRoom, [f, ri]);
@@ -264,31 +259,47 @@ function MapEditor({
             ));
 
             return <div key={`room-${ri}`} className={ styles['room'] }>
+              { f < 15 &&
+              <button type="button"
+                className={
+                  styles["connect-button"] + ' ' + (_(startCoordinate).isEqual([f, ri]) ? styles["floor-num-selected"] : '')
+                }
+                onClick={ () => setStartCoordinate(startCoordinate => {
+                  const coord: Coordinate = [f, ri];
+                  return _(coord).isEqual(startCoordinate) ? undefined : coord;
+                }) }
+              >
+                ^
+              </button>
+              }
+
               <RoomButton
                 room={ room }
                 onClick={ () => cycleRoomType(f, ri) }
               />
 
-              <button type="button"
-                className={
-                  styles["connect-button"]
-                    + " " + (isSelected ? styles["room-selected"] : "")
-                    + " " + (isNeighborOfSelected ? styles["room-selected-neighbor"] : "")
-                }
-                onClick={ () => {
-                  if (!selectedRoom) {
-                    setSelectedRoom([f, ri]);
-                  } else if (isSelected) {
-                    setSelectedRoom(null);
-                  } else if (isNeighborOfSelected) {
-                    toggleConnection(selectedRoom, f, ri);
-                  } else {
-                    setSelectedRoom([f, ri]);
+              { f < 15 &&
+                <button type="button"
+                  className={
+                    styles["connect-button"]
+                      + " " + (isSelected ? styles["room-selected"] : "")
+                      + " " + (isNeighborOfSelected ? styles["room-selected-neighbor"] : "")
                   }
-                }}
-              >
-                o
-              </button>
+                  onClick={ () => {
+                    if (!selectedRoom) {
+                      setSelectedRoom([f, ri]);
+                    } else if (isSelected) {
+                      setSelectedRoom(null);
+                    } else if (isNeighborOfSelected) {
+                      toggleConnection(selectedRoom, f, ri);
+                    } else {
+                      setSelectedRoom([f, ri]);
+                    }
+                  }}
+                >
+                  o
+                </button>
+              }
             </div>;
           })}
 

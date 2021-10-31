@@ -3,7 +3,7 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
+import { Coordinate, FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
 import FloatInput from 'components/FloatInput';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
@@ -28,35 +28,34 @@ function computeTreeRef() {
   }
 }
 
-function* findAllPaths(map: MapDef, startFloor: FloorNum): Generator<Path> {
-  const numFloors = _(map).size() - startFloor + 1;
-  let floorStack: number[] = [0];
-  if (map[1].length > 0) {
-    while (true) {
-      if (floorStack.length === 0) {
-        break;
-      } else if (floorStack.length < numFloors) {
-        floorStack = [
-          ...floorStack,
-          _.min(map[startFloor - 1 + floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections),
-        ];
-      } else {
-        yield floorStack.reduce((path, ri, f0) => ({ ...path, [f0 + startFloor]: ri }), {});
+function* findAllPaths(map: MapDef, startCoordinates: Coordinate[]): Generator<Path> {
+  for (const [startFloor, startRoom] of startCoordinates) {
+    const numFloors = _(map).size() - startFloor + 1;
+    let floorStack: number[] = [startRoom];
+    if (map[startFloor].length > 0) {
+      while (true) {
+        if (floorStack.length === 0) {
+          break;
+        } else if (floorStack.length < numFloors) {
+          floorStack = [
+            ...floorStack,
+            _.min(map[startFloor - 1 + floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections),
+          ];
+        } else {
+          yield floorStack.reduce((path, ri, f0) => ({ ...path, [f0 + startFloor]: ri }), {});
 
-        while (floorStack.length > 1) {
-          const secondLastRoom = map[startFloor - 1 + floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
-          const nextRoom = floorStack[floorStack.length - 1] + 1;
-          if (_(secondLastRoom.connections).contains(nextRoom)) {
-            floorStack = floorStack.map((ri, i) => i === floorStack.length - 1 ? nextRoom : ri);
-            break;
-          } else {
-            floorStack = floorStack.filter((_, i) => i < floorStack.length - 1);
+          while (floorStack.length > 1) {
+            const secondLastRoom = map[startFloor - 1 + floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
+            const nextRoom = floorStack[floorStack.length - 1] + 1;
+            if (_(secondLastRoom.connections).contains(nextRoom)) {
+              floorStack = floorStack.map((ri, i) => i === floorStack.length - 1 ? nextRoom : ri);
+              break;
+            } else {
+              floorStack = floorStack.filter((_, i) => i < floorStack.length - 1);
+            }
           }
-        }
 
-        if (floorStack.length === 1) {
-          floorStack = [floorStack[0] + 1];
-          if (floorStack[0] >= map[startFloor].length) {
+          if (floorStack.length === 1) {
             break;
           }
         }
@@ -65,10 +64,10 @@ function* findAllPaths(map: MapDef, startFloor: FloorNum): Generator<Path> {
   }
 }
 
-function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startFloor: FloorNum): [number, Path[]] {
+function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startCoordinates: Coordinate[]): [number, Path[]] {
   let maxn = 0;
   let maxPaths: Path[] = [];
-  for (const path of findAllPaths(map, startFloor)) {
+  for (const path of findAllPaths(map, startCoordinates)) {
     const n = floorNums
       .filter((f) => {
         const ri = path[f];
@@ -94,10 +93,10 @@ function rankPaths(
   map: MapDef,
   gold: number,
   numPaths: number,
-  startFloor: FloorNum,
+  startCoordinates: Coordinate[],
 ): [string, Path[]][] {
   let paths: { [value: string]: Path[] } = {};
-  for (const path of findAllPaths(map, startFloor)) {
+  for (const path of findAllPaths(map, startCoordinates)) {
     const value = floorNums.reduce(
       (v, f) => {
         const ri = path[f];
@@ -120,18 +119,18 @@ function PathsCounter({
   label,
   map,
   selected,
-  startFloor,
+  startCoordinates,
   types,
   onHighlight,
 }: {
   label?: React.ReactNode,
   map: MapDef,
   selected?: RoomType[],
-  startFloor: FloorNum,
+  startCoordinates: Coordinate[],
   types: RoomType[],
   onHighlight?: (types: RoomType[] | undefined) => void,
 }) {
-  const [num, paths] = findMostOfTypes(types, map, startFloor);
+  const [num, paths] = findMostOfTypes(types, map, startCoordinates);
   const isSelected = _.isEqual(selected, types);
   return <p>
     { label }
@@ -163,18 +162,18 @@ function PathRanking({
   label,
   map,
   onHighlight,
-  startFloor,
+  startCoordinates,
   valueFunc,
 }: {
   gold: number,
   highlightedPaths?: Path[],
   label?: React.ReactNode,
   map: MapDef,
-  startFloor: FloorNum,
+  startCoordinates: Coordinate[],
   valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
   onHighlight?: (path: Path[] | undefined) => void,
 }) {
-  const ranking = rankPaths(valueFunc, map, gold, 15, startFloor);
+  const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
   return <div className={ styles["path-ranking"] }>
     { label }
     { ':' }
@@ -227,14 +226,15 @@ function App() {
   const [storeGoldValue, setStoreGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
   const [gold, setGold] = useState(99);
-  const [startFloor, setStartFloor] = useState<FloorNum>(1);
+  const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
+  const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
 
   const customCountTypes = _(customCountTypesSelection).chain().pick(b => b || false).keys().value() as RoomType[];
 
   const mapString = JSON.stringify(map);
 
   let numPaths = 0;
-  for (const path of findAllPaths(map, startFloor)) {
+  for (const path of findAllPaths(map, startCoordinates)) {
     numPaths += 1;
   }
 
@@ -253,10 +253,10 @@ function App() {
   useEffect(
     () => {
       if (highlightPathTypes) {
-        setHighlightedPaths(findMostOfTypes(highlightPathTypes, map, startFloor)[1]);
+        setHighlightedPaths(findMostOfTypes(highlightPathTypes, map, startCoordinates)[1]);
       }
     },
-    [highlightPathTypes, startFloor]
+    [highlightPathTypes, startCoordinate]
   );
 
   const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
@@ -345,9 +345,9 @@ function App() {
       <MapEditor
         highlightPaths={ highlightedPaths }
         map={ map }
-        startFloor={ startFloor }
+        startCoordinate={ startCoordinate }
         setMap={ setMap }
-        setStartFloor={ setStartFloor }
+        setStartCoordinate={ setStartCoordinate }
       />
 
       <div className={ styles.info }>
@@ -356,7 +356,7 @@ function App() {
           label="Max elites + rests"
           types={ ["elite", "rest"] }
           selected={ highlightPathTypes }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -364,7 +364,7 @@ function App() {
           label="Max elites + supers"
           types={ ["elite", "super"] }
           selected={ highlightPathTypes }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -372,7 +372,7 @@ function App() {
           label="Max fights"
           types={ ["fight"] }
           selected={ highlightPathTypes }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -380,7 +380,7 @@ function App() {
           label="Max events"
           types={ ["event"] }
           selected={ highlightPathTypes }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -388,7 +388,7 @@ function App() {
           label="Max custom"
           types={ customCountTypes }
           selected={ highlightPathTypes }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           map={ map }
           onHighlight={ (types) => { setHighlightTypes(types); setIsHighlightCustom(true); } }
         />
@@ -449,7 +449,7 @@ function App() {
           label="Most valuable paths"
           map={ map }
           valueFunc={ valuateRoom }
-          startFloor={ startFloor }
+          startCoordinates={ startCoordinates }
           onHighlight={ setHighlightRanked }
         />
       </div>
