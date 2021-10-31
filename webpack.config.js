@@ -54,7 +54,7 @@ module.exports = {
 
   output: {
     path: BUILD_DIR,
-    filename: '[name]-[hash].js',
+    filename: '[name]-[fullhash].js',
     globalObject: 'this', // Workaround for a bug in Webpack https://github.com/webpack/webpack/issues/6642
   },
 
@@ -107,7 +107,7 @@ module.exports = {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: '[path]___[name]__[local]___[hash:base64:5]',
+                localIdentName: '[path]___[name]__[local]___[fullhash:base64:5]',
               }
             },
           },
