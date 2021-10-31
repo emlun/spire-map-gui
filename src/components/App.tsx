@@ -294,7 +294,20 @@ function App() {
         }
       }
     },
-    [trackMostValuable, startCoordinate],
+    [
+      eliteValue,
+      eventValue,
+      fightValue,
+      gold,
+      map,
+      restValue,
+      shopGoldValue,
+      shopValue,
+      startCoordinate,
+      superValue,
+      trackMostValuable,
+      treasureValue,
+    ],
   );
 
   const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
