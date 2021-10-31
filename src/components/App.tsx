@@ -135,6 +135,7 @@ function PathsCounter({
         Stop showing
       </button>
     }
+    { ` ${paths.length} paths` }
   </p>;
 }
 
@@ -179,6 +180,7 @@ function PathRanking({
               Stop showing
             </button>
           }
+          { ` ${paths.length} paths` }
         </li>;
       })}
     </ol>
