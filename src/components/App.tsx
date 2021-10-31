@@ -446,24 +446,24 @@ function App() {
 
         <p>Room values:</p>
         <p>
-          <label className={ styles["value-input-label"] }>Chest:</label>
-          <FloatInput value={ chestValue } onChange={ setChestValue }/>
+          <label className={ styles["value-input-label"] }>Fight:</label>
+          <FloatInput value={ fightValue } onChange={ setFightValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Elite:</label>
           <FloatInput value={ eliteValue } onChange={ setEliteValue }/>
         </p>
         <p>
-          <label className={ styles["value-input-label"] }>Event:</label>
-          <FloatInput value={ eventValue } onChange={ setEventValue }/>
-        </p>
-        <p>
-          <label className={ styles["value-input-label"] }>Fight:</label>
-          <FloatInput value={ fightValue } onChange={ setFightValue }/>
+          <label className={ styles["value-input-label"] }>Super:</label>
+          <FloatInput value={ superValue } onChange={ setSuperValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Rest:</label>
           <FloatInput value={ restValue } onChange={ setRestValue }/>
+        </p>
+        <p>
+          <label className={ styles["value-input-label"] }>Event:</label>
+          <FloatInput value={ eventValue } onChange={ setEventValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Store:</label>
@@ -473,8 +473,8 @@ function App() {
           { ' per 100 gold' }
         </p>
         <p>
-          <label className={ styles["value-input-label"] }>Super:</label>
-          <FloatInput value={ superValue } onChange={ setSuperValue }/>
+          <label className={ styles["value-input-label"] }>Chest:</label>
+          <FloatInput value={ chestValue } onChange={ setChestValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Current gold:</label>
