@@ -83,8 +83,8 @@ function rankPaths(
   map: MapDef,
   gold: number,
   numPaths: number,
-): [number, Path][] {
-  let paths: [number, Path][] = [];
+): [string, Path[]][] {
+  let paths: { [value: string]: Path[] } = {};
   for (const path of findAllPaths(map)) {
     const value = path.reduce(
       (v, ri, f) => {
@@ -93,9 +93,11 @@ function rankPaths(
       },
       0,
     );
-    paths.push([value, path]);
+    const valueStr = value.toFixed(2);
+    const entry = paths[valueStr] || [];
+    paths[valueStr] = [...entry, path];
   }
-  return _(paths).chain().sortBy(([v, path]) => -v).take(numPaths).value();
+  return _(paths).chain().pairs().sortBy(([v, _]) => -parseFloat(v)).take(numPaths).value();
 }
 
 function PathsCounter({
@@ -157,15 +159,14 @@ function PathRanking({
     { ':' }
 
     <ol>
-      { ranking.map(([value, path], i) => {
-        const isSelected = _(highlightedPaths).isEqual([path]);
+      { _(ranking).map(([value, paths], i) => {
+        const isSelected = _(highlightedPaths).isEqual(paths);
         return <li key={ i }>
-          { value.toFixed(2) }
-          { ' ' }
+          { `${value}: ` }
           { onHighlight && !isSelected &&
             <button type="button"
               className={ styles["highlight-paths-button"] }
-              onClick={ () => onHighlight([path]) }
+              onClick={ () => onHighlight(paths) }
             >
               Show
             </button>
