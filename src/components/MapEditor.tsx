@@ -316,7 +316,7 @@ function MapEditor({
           <button type="button"
             className={ styles["add-drop-floor"] }
             onClick={ () => addRoom(f) }
-            disabled={ f === 15 }
+            disabled={ f === 15 || map[f].length >= 8 }
           >
             +
           </button>
