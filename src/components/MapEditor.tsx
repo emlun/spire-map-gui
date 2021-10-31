@@ -217,8 +217,8 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
               ctx.lineWidth = 1;
             }
 
-            ctx.moveTo(nextRoomX, 4);
-            ctx.lineTo(roomX, canvas.height - 4);
+            ctx.moveTo(nextRoomX, -10);
+            ctx.lineTo(roomX, canvas.height + 10);
             ctx.stroke();
           });
         });
