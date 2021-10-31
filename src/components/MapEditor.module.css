@@ -25,6 +25,53 @@
 .room-button {
 }
 
+.icon {
+  background-size: auto 1.9rem;
+  border-radius: 0.4rem;
+  color: transparent;
+  height: 1.9rem;
+  width: 2.3rem;
+}
+
+.icon-chest {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/9/9e/Chest1.jpg");
+  background-position: 0.15rem 0;
+}
+
+.icon-elite {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Elite1.jpg");
+  background-position: -0.1rem 0;
+}
+
+.icon-event {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/f/f3/Unknown1.jpg");
+  background-position: 0.3rem 0;
+}
+
+.icon-fight {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Enemy1.jpg");
+  background-position: 0.2rem 0.1rem;
+}
+
+.icon-rest {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/4/46/Rest1.jpg");
+  background-position: 0.04rem -0.1rem;
+}
+
+.icon-store {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/3/35/Shop1.jpg");
+  background-position: 0.3rem -0.1rem;
+}
+
+.icon-super {
+  background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Elite1.jpg");
+  background-position: 2.5rem 0;
+  background-repeat: no-repeat;
+  color: initial;
+  text-align: left;
+  width: 5rem;
+}
+
 .connect-button.room-selected {
   border: 2px solid red;
 }
@@ -39,6 +86,6 @@
 
 .connection-canvas {
   margin-left: 3rem;
-  height: 2.3rem;
+  height: 1.9rem;
   width: 40rem;
 }

@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, Path, floorNums, roomTypes } from 'types/map';
+import { FloorNum, MapDef, Path, RoomDef, RoomType, floorNums, roomTypes } from 'types/map';
 
 import styles from './MapEditor.module.css';
 
@@ -22,6 +22,23 @@ export const initialMap: MapDef = {
   13: [{ typ: "fight", connections: [0] }],
   14: [{ typ: "fight", connections: [0] }],
   15: [{ typ: "rest", connections: [] }],
+}
+
+interface RoomButtonProps {
+  room: RoomDef,
+  onClick: () => void,
+}
+
+function RoomButton({
+  room,
+  onClick,
+}: RoomButtonProps) {
+  return <button type="button"
+    className={ styles["room-button"] + ' ' + styles["icon"] + ' ' + styles["icon-" + room.typ] }
+    onClick={ onClick }
+  >
+    { room.typ }
+  </button>;
 }
 
 
@@ -229,12 +246,10 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
             ));
 
             return <div key={`room-${ri}`} className={ styles['room'] }>
-              <button type="button"
-                className={ styles["room-button"] }
+              <RoomButton
+                room={ room }
                 onClick={ () => cycleRoomType(f, ri) }
-              >
-                { room.typ }
-              </button>
+              />
 
               <button type="button"
                 className={
