@@ -28,7 +28,6 @@ const devConfig = {
 };
 
 const devPlugins = [
-  new webpack.HotModuleReplacementPlugin(),
   new ForkTsCheckerPlugin({
     typescript: {
       configFile: path.resolve(__dirname, 'tsconfig.json'),
