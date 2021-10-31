@@ -36,18 +36,27 @@ function* findAllPaths(map: MapDef, startCoordinates: Coordinate[]): Generator<P
       while (true) {
         if (floorStack.length === 0) {
           break;
-        } else if (floorStack.length < numFloors) {
-          floorStack = [
-            ...floorStack,
-            _.min(map[startFloor - 1 + floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections),
-          ];
-        } else {
-          yield floorStack.reduce((path, ri, f0) => ({ ...path, [f0 + startFloor]: ri }), {});
+        }
 
+        let moveToSibling = false;
+        if (floorStack.length === numFloors) {
+          yield floorStack.reduce((path, ri, f0) => ({ ...path, [f0 + startFloor]: ri }), {});
+          moveToSibling = true;
+        } else {
+          const connections = map[startFloor - 1 + floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections;
+          if (connections.length > 0) {
+            floorStack = [...floorStack, connections[0]];
+          } else {
+            moveToSibling = true;
+          }
+        }
+
+        if (moveToSibling) {
           while (floorStack.length > 1) {
             const secondLastRoom = map[startFloor - 1 + floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
-            const nextRoom = floorStack[floorStack.length - 1] + 1;
-            if (_(secondLastRoom.connections).contains(nextRoom)) {
+            const currentIndex = secondLastRoom.connections.indexOf(floorStack[floorStack.length - 1]);
+            const nextRoom = secondLastRoom.connections[currentIndex + 1];
+            if (nextRoom) {
               floorStack = floorStack.map((ri, i) => i === floorStack.length - 1 ? nextRoom : ri);
               break;
             } else {
