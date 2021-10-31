@@ -8,7 +8,7 @@ import styles from './MapEditor.module.css';
 
 export const initialMap: MapDef = {
   1: [{ typ: "fight", connections: [0, 1] }, { typ: "fight", connections: [1, 2] }],
-  2: [{ typ: "fight", connections: [0] }, { typ: "event", connections: [0] }, { typ: "store", connections: [0] }],
+  2: [{ typ: "fight", connections: [0] }, { typ: "event", connections: [0] }, { typ: "shop", connections: [0] }],
   3: [{ typ: "fight", connections: [0] }],
   4: [{ typ: "fight", connections: [0] }],
   5: [{ typ: "fight", connections: [0] }],

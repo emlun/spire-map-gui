@@ -237,8 +237,8 @@ function App() {
   const [eventValue, setEventValue] = useState(0.8);
   const [fightValue, setFightValue] = useState(0.3);
   const [restValue, setRestValue] = useState(1);
-  const [storeValue, setStoreValue] = useState(0.3);
-  const [storeGoldValue, setStoreGoldValue] = useState(0.4);
+  const [shopValue, setShopValue] = useState(0.3);
+  const [shopGoldValue, setShopGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
   const [gold, setGold] = useState(99);
   const [trackMostValuable, setTrackMostValuable] = useState(false);
@@ -321,8 +321,8 @@ function App() {
       case "rest":
         return restValue;
 
-      case "store":
-        return storeValue + storeGoldValue * gold / 100;
+      case "shop":
+        return shopValue + shopGoldValue * gold / 100;
 
       case "super":
         return superValue;
@@ -466,10 +466,10 @@ function App() {
           <FloatInput value={ eventValue } onChange={ setEventValue }/>
         </p>
         <p>
-          <label className={ styles["value-input-label"] }>Store:</label>
-          <FloatInput value={ storeValue } onChange={ setStoreValue }/>
+          <label className={ styles["value-input-label"] }>Shop:</label>
+          <FloatInput value={ shopValue } onChange={ setShopValue }/>
           { ' + ' }
-          <FloatInput value={ storeGoldValue } onChange={ setStoreGoldValue }/>
+          <FloatInput value={ shopGoldValue } onChange={ setShopGoldValue }/>
           { ' per 100 gold' }
         </p>
         <p>
