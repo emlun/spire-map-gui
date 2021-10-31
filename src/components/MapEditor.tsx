@@ -309,12 +309,14 @@ function MapEditor({
           <button type="button"
             className={ styles["add-drop-floor"] }
             onClick={ () => dropRoom(f) }
+            disabled={ f === 15 }
           >
             -
           </button>
           <button type="button"
             className={ styles["add-drop-floor"] }
             onClick={ () => addRoom(f) }
+            disabled={ f === 15 }
           >
             +
           </button>
