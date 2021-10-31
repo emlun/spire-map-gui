@@ -1,5 +1,3 @@
-/* eslint no-console: 0 */
-
 const childProcess = require('child_process');
 const path = require('path');
 
@@ -80,13 +78,6 @@ module.exports = {
 
   module: {
     rules: [
-      {
-        test: /\.jsx?$/,
-        enforce: 'pre',
-        exclude: [/node_modules/],
-        loader: 'eslint-loader',
-      },
-
       {
         test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
