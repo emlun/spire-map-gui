@@ -36,6 +36,7 @@ function RoomButton({
   return <button type="button"
     className={ styles["room-button"] + ' ' + styles["icon"] + ' ' + styles["icon-" + room.typ] }
     onClick={ onClick }
+    title={ room.typ }
   >
     { room.typ }
   </button>;
@@ -268,6 +269,7 @@ function MapEditor({
                   const coord: Coordinate = [f, ri];
                   return _(coord).isEqual(startCoordinate) ? undefined : coord;
                 }) }
+                title="Start from here"
               >
                 ^
               </button>
@@ -296,6 +298,7 @@ function MapEditor({
                       setSelectedRoom([f, ri]);
                     }
                   }}
+                  title="Edit connections"
                 >
                   o
                 </button>
