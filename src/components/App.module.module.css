@@ -46,8 +46,11 @@
 }
 
 .path-ranking ol {
-  list-style: none;
   padding: 0 2em;
+}
+
+.path-ranking li {
+  padding: 0 1em;
 }
 
 .footer {
