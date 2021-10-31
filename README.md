@@ -1,9 +1,9 @@
 Slay the Spire map analysis gui
 ===
 
-Prototype/WIP.
-
 Try it here: https://emlun.se/spire-map-gui/
+
+I made this because it seemed like an interesting project to build, I have no particular plans to keep developing it.
 
 
 Requirements

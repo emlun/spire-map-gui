@@ -1,6 +1,6 @@
 {
   "name": "spire-map-gui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Slay the Spire map analysis GUI",
   "main": "src/index.js",
