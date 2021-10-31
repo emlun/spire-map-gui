@@ -69,11 +69,8 @@
 
 .icon-super {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Elite1.jpg");
-  background-position: 2.5rem 0;
-  background-repeat: no-repeat;
-  color: initial;
-  text-align: left;
-  width: 5rem;
+  background-position: -0.15rem -0.1rem;
+  border: 0.2rem solid orange;
 }
 
 .connect-button.room-selected {
