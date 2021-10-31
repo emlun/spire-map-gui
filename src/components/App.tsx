@@ -151,7 +151,7 @@ function PathRanking({
   valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
   onHighlight?: (path: Path[] | undefined) => void,
 }) {
-  const ranking = rankPaths(valueFunc, map, gold, 10);
+  const ranking = rankPaths(valueFunc, map, gold, 15);
   return <div className={ styles["path-ranking"] }>
     { label }
     { ':' }
