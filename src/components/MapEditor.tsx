@@ -101,10 +101,7 @@ function MapEditor({
         ...map[f],
         {
           typ: f == 9 ? "treasure" : "fight",
-          connections:
-            (f < 15 && map[f + 1 as FloorNum].length > 0)
-            ? [map[f + 1 as FloorNum].length - 1]
-            : [],
+          connections: f === 14 ? [0] : [],
         }
       ];
       if (f > 1) {
@@ -112,16 +109,6 @@ function MapEditor({
         return {
           ...map,
           [f]: thisFloor,
-          [fprev]: map[fprev].map((room, ri) => {
-            if (ri === map[fprev].length - 1) {
-              return {
-                ...room,
-                connections: _.union(room.connections, [thisFloor.length - 1]),
-              };
-            } else {
-              return room;
-            }
-          }),
         };
       } else {
         return {
