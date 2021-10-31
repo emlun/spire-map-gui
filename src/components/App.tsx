@@ -233,6 +233,21 @@ function PathRanking({
   </div>;
 }
 
+function useLocalStorage<T>(key: string, initialValue: T) {
+  if (window.localStorage) {
+    const [value, setValue] = useState(
+      JSON.parse(window.localStorage.getItem(key) || JSON.stringify(initialValue))
+    );
+    useEffect(
+      () => window.localStorage.setItem(key, JSON.stringify(value)),
+      [value],
+    );
+    return [value, setValue];
+  } else {
+    return useState(initialValue);
+  }
+}
+
 function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
   const [customCountTypesSelection, setCustomCountTypesSelection] = useState<{ [rt in RoomType]?: boolean }>({
@@ -244,17 +259,18 @@ function App() {
   const [highlightPathTypes, setHighlightPathTypes] = useState<RoomType[]>();
   const [isHighlightCustom, setIsHighlightCustom] = useState(false);
 
-  const [eliteValue, setEliteValue] = useState(1.2);
-  const [eventValue, setEventValue] = useState(0.8);
-  const [easyFightValue, setEasyFightValue] = useState(1);
-  const [hardFightValue, setHardFightValue] = useState(0.9);
-  const [restValue, setRestValue] = useState(1.2);
-  const [shopValue, setShopValue] = useState(0.3);
-  const [shopGoldValue, setShopGoldValue] = useState(0.4);
-  const [superValue, setSuperValue] = useState(1.3);
-  const [treasureValue, setTreasureValue] = useState(0.8);
-  const [gold, setGold] = useState(99);
-  const [fightEvents, setFightEvents] = useState(0);
+  const [eliteValue, setEliteValue] = useLocalStorage('eliteValue', 1.2);
+  const [eventValue, setEventValue] = useLocalStorage('eventValue', 0.8);
+  const [easyFightValue, setEasyFightValue] = useLocalStorage("easyFightValue", 1);
+  const [hardFightValue, setHardFightValue] = useLocalStorage("hardFightValue", 0.9);
+  const [restValue, setRestValue] = useLocalStorage("restValue", 1.2);
+  const [shopValue, setShopValue] = useLocalStorage("shopValue", 0.3);
+  const [shopGoldValue, setShopGoldValue] = useLocalStorage("shopGoldValue", 0.4);
+  const [superValue, setSuperValue] = useLocalStorage("superValue", 1.3);
+  const [treasureValue, setTreasureValue] = useLocalStorage("treasureValue", 0.8);
+  const [gold, setGold] = useLocalStorage("gold", 99);
+  const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 0);
+
   const [trackMostValuable, setTrackMostValuable] = useState(false);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
   const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
