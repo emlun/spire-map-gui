@@ -159,24 +159,39 @@ function PathsCounter({
 function PathRanking({
   gold,
   highlightedPaths,
+  isTrackingMostValuable,
   label,
   map,
   onHighlight,
   startCoordinates,
   valueFunc,
+  setTrackMostValuable,
 }: {
   gold: number,
   highlightedPaths?: Path[],
+  isTrackingMostValuable: boolean,
   label?: React.ReactNode,
   map: MapDef,
+  onHighlight?: (path: Path[] | undefined) => void,
+  setTrackMostValuable: (value: boolean) => void,
   startCoordinates: Coordinate[],
   valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
-  onHighlight?: (path: Path[] | undefined) => void,
 }) {
   const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
   return <div className={ styles["path-ranking"] }>
     { label }
     { ':' }
+    { setTrackMostValuable &&
+      <button type="button"
+        className={
+          styles["highlight-paths-button"]
+            + ' ' + (isTrackingMostValuable ? styles["highlight-paths-button-selected"] : '')
+        }
+        onClick={ () => setTrackMostValuable(!isTrackingMostValuable) }
+      >
+        { isTrackingMostValuable ? "Stop tracking" : "Track" }
+      </button>
+    }
 
     <ol>
       { _(ranking).map(([value, paths], i) => {
@@ -226,6 +241,7 @@ function App() {
   const [storeGoldValue, setStoreGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
   const [gold, setGold] = useState(99);
+  const [trackMostValuable, setTrackMostValuable] = useState(false);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
   const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
 
@@ -257,6 +273,28 @@ function App() {
       }
     },
     [highlightPathTypes, startCoordinate]
+  );
+
+  useEffect(
+    () => {
+      if (highlightPathTypes) {
+        setTrackMostValuable(false);
+      }
+    },
+    [highlightPathTypes],
+  );
+
+  useEffect(
+    () => {
+      if (trackMostValuable) {
+        setHighlightPathTypes(undefined);
+        const ranking = rankPaths(valuateRoom, map, gold, 1, startCoordinates);
+        if (ranking.length > 0) {
+          setHighlightedPaths(ranking[0][1]);
+        }
+      }
+    },
+    [trackMostValuable, startCoordinate],
   );
 
   const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
@@ -446,11 +484,13 @@ function App() {
         <PathRanking
           gold={ gold }
           highlightedPaths={ highlightedPaths }
+          isTrackingMostValuable={ trackMostValuable }
           label="Most valuable paths"
           map={ map }
-          valueFunc={ valuateRoom }
-          startCoordinates={ startCoordinates }
           onHighlight={ setHighlightRanked }
+          setTrackMostValuable={ setTrackMostValuable }
+          startCoordinates={ startCoordinates }
+          valueFunc={ valuateRoom }
         />
       </div>
     </div>
