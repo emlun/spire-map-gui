@@ -15,6 +15,10 @@
   width: 3rem;
 }
 
+.floor-num-selected {
+  border: 2px solid blue;
+}
+
 .room {
   flex-grow: 1;
   flex-shrink: 1;

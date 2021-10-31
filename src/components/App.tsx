@@ -3,7 +3,7 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
-import { FloorNum, MapDef, Path, RoomType, roomTypes } from 'types/map';
+import { FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
 import FloatInput from 'components/FloatInput';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
@@ -28,20 +28,23 @@ function computeTreeRef() {
   }
 }
 
-function* findAllPaths(map: MapDef): Generator<Path> {
-  const numFloors = _(map).size();
-  let floorStack: Path = [0];
+function* findAllPaths(map: MapDef, startFloor: FloorNum): Generator<Path> {
+  const numFloors = _(map).size() - startFloor + 1;
+  let floorStack: number[] = [0];
   if (map[1].length > 0) {
     while (true) {
       if (floorStack.length === 0) {
         break;
       } else if (floorStack.length < numFloors) {
-        floorStack = [...floorStack, _.min(map[floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections)];
+        floorStack = [
+          ...floorStack,
+          _.min(map[startFloor - 1 + floorStack.length as FloorNum][floorStack[floorStack.length - 1]].connections),
+        ];
       } else {
-        yield floorStack;
+        yield floorStack.reduce((path, ri, f0) => ({ ...path, [f0 + startFloor]: ri }), {});
 
         while (floorStack.length > 1) {
-          const secondLastRoom = map[floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
+          const secondLastRoom = map[startFloor - 1 + floorStack.length - 1 as FloorNum][floorStack[floorStack.length - 2]];
           const nextRoom = floorStack[floorStack.length - 1] + 1;
           if (_(secondLastRoom.connections).contains(nextRoom)) {
             floorStack = floorStack.map((ri, i) => i === floorStack.length - 1 ? nextRoom : ri);
@@ -53,7 +56,7 @@ function* findAllPaths(map: MapDef): Generator<Path> {
 
         if (floorStack.length === 1) {
           floorStack = [floorStack[0] + 1];
-          if (floorStack[0] >= map[1].length) {
+          if (floorStack[0] >= map[startFloor].length) {
             break;
           }
         }
@@ -62,11 +65,19 @@ function* findAllPaths(map: MapDef): Generator<Path> {
   }
 }
 
-function findMostOfTypes(roomTypes: RoomType[], map: MapDef): [number, Path[]] {
+function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startFloor: FloorNum): [number, Path[]] {
   let maxn = 0;
   let maxPaths: Path[] = [];
-  for (const path of findAllPaths(map)) {
-    const n = path.filter((ri, f) => _(roomTypes).contains(map[f + 1 as FloorNum][ri].typ)).length;
+  for (const path of findAllPaths(map, startFloor)) {
+    const n = floorNums
+      .filter((f) => {
+        const ri = path[f];
+        if (ri === undefined) {
+          return false;
+        } else {
+          return _(roomTypes).contains(map[f][ri].typ);
+        }
+      }).length;
     if (n > maxn) {
       maxn = n;
       maxPaths = [path];
@@ -83,13 +94,18 @@ function rankPaths(
   map: MapDef,
   gold: number,
   numPaths: number,
+  startFloor: FloorNum,
 ): [string, Path[]][] {
   let paths: { [value: string]: Path[] } = {};
-  for (const path of findAllPaths(map)) {
-    const value = path.reduce(
-      (v, ri, f) => {
-        const fl = f + 1 as FloorNum;
-        return v + valueFunc(map[fl][ri]?.typ, fl, gold);
+  for (const path of findAllPaths(map, startFloor)) {
+    const value = floorNums.reduce(
+      (v, f) => {
+        const ri = path[f];
+        if (ri === undefined) {
+          return v;
+        } else {
+          return v + valueFunc(map[f][ri]?.typ, f, gold);
+        }
       },
       0,
     );
@@ -104,16 +120,18 @@ function PathsCounter({
   label,
   map,
   selected,
+  startFloor,
   types,
   onHighlight,
 }: {
   label?: React.ReactNode,
   map: MapDef,
   selected?: RoomType[],
+  startFloor: FloorNum,
   types: RoomType[],
   onHighlight?: (types: RoomType[] | undefined) => void,
 }) {
-  const [num, paths] = findMostOfTypes(types, map);
+  const [num, paths] = findMostOfTypes(types, map, startFloor);
   const isSelected = _.isEqual(selected, types);
   return <p>
     { label }
@@ -145,16 +163,18 @@ function PathRanking({
   label,
   map,
   onHighlight,
+  startFloor,
   valueFunc,
 }: {
   gold: number,
   highlightedPaths?: Path[],
   label?: React.ReactNode,
   map: MapDef,
+  startFloor: FloorNum,
   valueFunc: (rt: RoomType, f: FloorNum, gold: number) => number,
   onHighlight?: (path: Path[] | undefined) => void,
 }) {
-  const ranking = rankPaths(valueFunc, map, gold, 15);
+  const ranking = rankPaths(valueFunc, map, gold, 15, startFloor);
   return <div className={ styles["path-ranking"] }>
     { label }
     { ':' }
@@ -207,21 +227,20 @@ function App() {
   const [storeGoldValue, setStoreGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
   const [gold, setGold] = useState(99);
+  const [startFloor, setStartFloor] = useState<FloorNum>(1);
 
   const customCountTypes = _(customCountTypesSelection).chain().pick(b => b || false).keys().value() as RoomType[];
 
   const mapString = JSON.stringify(map);
 
   let numPaths = 0;
-  for (const path of findAllPaths(map)) {
+  for (const path of findAllPaths(map, startFloor)) {
     numPaths += 1;
   }
 
   const setHighlightTypes = (types: RoomType[] | undefined) => {
     setHighlightPathTypes(types);
-    if (types) {
-      setHighlightedPaths(findMostOfTypes(types, map)[1]);
-    } else {
+    if (!types) {
       setHighlightedPaths(undefined);
     }
   };
@@ -230,6 +249,15 @@ function App() {
     setHighlightPathTypes(undefined);
     setHighlightedPaths(paths);
   };
+
+  useEffect(
+    () => {
+      if (highlightPathTypes) {
+        setHighlightedPaths(findMostOfTypes(highlightPathTypes, map, startFloor)[1]);
+      }
+    },
+    [highlightPathTypes, startFloor]
+  );
 
   const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
     setCustomCountTypesSelection(sel => ({
@@ -317,7 +345,9 @@ function App() {
       <MapEditor
         highlightPaths={ highlightedPaths }
         map={ map }
+        startFloor={ startFloor }
         setMap={ setMap }
+        setStartFloor={ setStartFloor }
       />
 
       <div className={ styles.info }>
@@ -326,6 +356,7 @@ function App() {
           label="Max elites + rests"
           types={ ["elite", "rest"] }
           selected={ highlightPathTypes }
+          startFloor={ startFloor }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -333,6 +364,7 @@ function App() {
           label="Max elites + supers"
           types={ ["elite", "super"] }
           selected={ highlightPathTypes }
+          startFloor={ startFloor }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -340,6 +372,7 @@ function App() {
           label="Max fights"
           types={ ["fight"] }
           selected={ highlightPathTypes }
+          startFloor={ startFloor }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -347,6 +380,7 @@ function App() {
           label="Max events"
           types={ ["event"] }
           selected={ highlightPathTypes }
+          startFloor={ startFloor }
           map={ map }
           onHighlight={ setHighlightTypes }
         />
@@ -354,6 +388,7 @@ function App() {
           label="Max custom"
           types={ customCountTypes }
           selected={ highlightPathTypes }
+          startFloor={ startFloor }
           map={ map }
           onHighlight={ (types) => { setHighlightTypes(types); setIsHighlightCustom(true); } }
         />
@@ -414,6 +449,7 @@ function App() {
           label="Most valuable paths"
           map={ map }
           valueFunc={ valuateRoom }
+          startFloor={ startFloor }
           onHighlight={ setHighlightRanked }
         />
       </div>

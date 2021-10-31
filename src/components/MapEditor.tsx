@@ -45,10 +45,18 @@ function RoomButton({
 interface Props {
   highlightPaths?: Path[],
   map: MapDef,
+  startFloor: FloorNum,
   setMap: (map: MapDef | ((map: MapDef) => MapDef)) => void,
+  setStartFloor: (startFloor: FloorNum | ((startFloor: FloorNum) => FloorNum)) => void,
 }
 
-function MapEditor({ highlightPaths, map, setMap }: Props) {
+function MapEditor({
+  highlightPaths,
+  map,
+  startFloor,
+  setMap,
+  setStartFloor,
+}: Props) {
 
   const [selectedRoom, setSelectedRoom] = useState<[FloorNum, number] | null>(null);
   const canvasRefs = {
@@ -209,7 +217,12 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
             const nextRoomX = (nextFloorRi * 2 + 1) / (map[f + 1 as FloorNum].length * 2) * canvas.width;
             ctx.beginPath();
 
-            if (highlightPaths && f < 15 && highlightPaths.some(path => path[f - 1] === ri && path[f] === nextFloorRi)) {
+            if (highlightPaths
+                && f < 15
+                && highlightPaths.some(path =>
+                  path[f] === ri && path[f + 1 as FloorNum] === nextFloorRi
+                )
+            ) {
               ctx.strokeStyle = 'red';
               ctx.lineWidth = 4;
             } else {
@@ -236,7 +249,12 @@ function MapEditor({ highlightPaths, map, setMap }: Props) {
           <canvas ref={ canvasRefCallbacks[f] } className={ styles['connection-canvas'] } /> }
 
         <div className={ styles['floor'] }>
-          <span className={ styles["floor-num"] }>{ f }</span>
+          <button type="button"
+            className={ styles["floor-num"] + ' ' + (startFloor === f ? styles["floor-num-selected"] : '') }
+            onClick={ () => setStartFloor(f) }
+          >
+            { f }
+          </button>
 
           { map[f].map((room, ri) => {
             const isSelected = _.isEqual(selectedRoom, [f, ri]);

@@ -8,7 +8,7 @@ export const roomTypes = [
   "chest",
 ] as const;
 export type RoomType = (typeof roomTypes)[number];
-export type Path = number[];
+export type Path = { [f in FloorNum]?: number };
 
 export interface RoomDef {
   typ: RoomType,
