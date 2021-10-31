@@ -218,8 +218,8 @@ function MapEditor({
               ctx.lineWidth = 1;
             }
 
-            ctx.moveTo(nextRoomX, -10);
-            ctx.lineTo(roomX, canvas.height + 10);
+            ctx.moveTo(nextRoomX, -6);
+            ctx.lineTo(roomX, canvas.height + 6);
             ctx.stroke();
           });
         });
