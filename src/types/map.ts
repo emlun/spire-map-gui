@@ -1,4 +1,12 @@
-export const roomTypes = ["chest", "elite", "event", "fight", "rest", "store", "super"] as const;
+export const roomTypes = [
+  "fight",
+  "elite",
+  "super",
+  "rest",
+  "event",
+  "store",
+  "chest",
+] as const;
 export type RoomType = (typeof roomTypes)[number];
 export type Path = number[];
 
