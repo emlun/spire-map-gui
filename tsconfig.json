@@ -5,7 +5,6 @@
     "baseUrl": ".",
     "paths": {
       "components/Root": ["src/components/Root.dev.tsx"],
-      "configureStore": ["src/configureStore.dev.ts"],
       "*": ["src/*", "node_modules/*"]
     },
     "sourceMap": true,
