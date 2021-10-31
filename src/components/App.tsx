@@ -246,13 +246,13 @@ function App() {
 
   const [eliteValue, setEliteValue] = useState(1.2);
   const [eventValue, setEventValue] = useState(0.8);
-  const [easyFightValue, setEasyFightValue] = useState(0.5);
-  const [hardFightValue, setHardFightValue] = useState(0.4);
-  const [restValue, setRestValue] = useState(1);
+  const [easyFightValue, setEasyFightValue] = useState(1);
+  const [hardFightValue, setHardFightValue] = useState(0.9);
+  const [restValue, setRestValue] = useState(1.2);
   const [shopValue, setShopValue] = useState(0.3);
   const [shopGoldValue, setShopGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
-  const [treasureValue, setTreasureValue] = useState(0.5);
+  const [treasureValue, setTreasureValue] = useState(0.8);
   const [gold, setGold] = useState(99);
   const [fightEvents, setFightEvents] = useState(0);
   const [trackMostValuable, setTrackMostValuable] = useState(false);
