@@ -232,7 +232,6 @@ function App() {
   const [highlightPathTypes, setHighlightPathTypes] = useState<RoomType[]>();
   const [isHighlightCustom, setIsHighlightCustom] = useState(false);
 
-  const [chestValue, setChestValue] = useState(0.5);
   const [eliteValue, setEliteValue] = useState(1.2);
   const [eventValue, setEventValue] = useState(0.8);
   const [fightValue, setFightValue] = useState(0.3);
@@ -240,6 +239,7 @@ function App() {
   const [shopValue, setShopValue] = useState(0.3);
   const [shopGoldValue, setShopGoldValue] = useState(0.4);
   const [superValue, setSuperValue] = useState(1.3);
+  const [treasureValue, setTreasureValue] = useState(0.5);
   const [gold, setGold] = useState(99);
   const [trackMostValuable, setTrackMostValuable] = useState(false);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
@@ -306,9 +306,6 @@ function App() {
 
   const valuateRoom = (rt: RoomType, f: FloorNum, gold: number) => {
     switch (rt) {
-      case "chest":
-        return chestValue;
-
       case "elite":
         return eliteValue;
 
@@ -326,6 +323,9 @@ function App() {
 
       case "super":
         return superValue;
+
+      case "treasure":
+        return treasureValue;
     }
 
     return 0;
@@ -473,8 +473,8 @@ function App() {
           { ' per 100 gold' }
         </p>
         <p>
-          <label className={ styles["value-input-label"] }>Chest:</label>
-          <FloatInput value={ chestValue } onChange={ setChestValue }/>
+          <label className={ styles["value-input-label"] }>Treasure:</label>
+          <FloatInput value={ treasureValue } onChange={ setTreasureValue }/>
         </p>
         <p>
           <label className={ styles["value-input-label"] }>Current gold:</label>

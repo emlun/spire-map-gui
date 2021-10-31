@@ -15,7 +15,7 @@ export const initialMap: MapDef = {
   6: [{ typ: "fight", connections: [0] }],
   7: [{ typ: "fight", connections: [0] }],
   8: [{ typ: "fight", connections: [0] }],
-  9: [{ typ: "chest", connections: [0] }],
+  9: [{ typ: "treasure", connections: [0] }],
   10: [{ typ: "fight", connections: [0] }],
   11: [{ typ: "fight", connections: [0] }],
   12: [{ typ: "fight", connections: [0] }],
@@ -99,7 +99,7 @@ function MapEditor({
       const thisFloor = [
         ...map[f],
         {
-          typ: f == 9 ? "chest" : "fight",
+          typ: f == 9 ? "treasure" : "fight",
           connections:
             (f < 15 && map[f + 1 as FloorNum].length > 0)
             ? [map[f + 1 as FloorNum].length - 1]

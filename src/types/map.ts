@@ -5,7 +5,7 @@ export const roomTypes = [
   "rest",
   "event",
   "shop",
-  "chest",
+  "treasure",
 ] as const;
 export type RoomType = (typeof roomTypes)[number];
 
