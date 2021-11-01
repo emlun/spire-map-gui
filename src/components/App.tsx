@@ -317,6 +317,16 @@ function App() {
 
   useEffect(
     () => {
+      if (!trackMostValuable) {
+        setHighlightedPaths(undefined);
+      }
+
+    },
+    [trackMostValuable]
+  );
+
+  useEffect(
+    () => {
       if (trackMostValuable) {
         setHighlightPathTypes(undefined);
         const ranking = rankPaths(valuateRoom, map, gold, 1, startCoordinates);
