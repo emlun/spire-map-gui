@@ -26,7 +26,7 @@ export const initialMap: MapDef = {
 
 interface RoomButtonProps {
   room: RoomDef,
-  onClick: () => void,
+  onClick?: () => void,
 }
 
 function RoomButton({
@@ -264,7 +264,7 @@ function MapEditor({
 
               <RoomButton
                 room={ room }
-                onClick={ () => cycleRoomType(f, ri) }
+                onClick={ f === 15 || f === 1 ? undefined : () => cycleRoomType(f, ri) }
               />
 
               { f < 15 &&
