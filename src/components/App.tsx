@@ -98,7 +98,7 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startCoordinates: C
 }
 
 function rankPaths(
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => number,
   map: MapDef,
   gold: number,
   numPaths: number,
@@ -107,18 +107,19 @@ function rankPaths(
   let paths: { [value: string]: Path[] } = {};
   for (const path of findAllPaths(map, startCoordinates)) {
     const [value, ] = floorNums.reduce(
-      ([v, fightsBefore], f) => {
+      ([v, fightsBefore, eventsBefore], f) => {
         const ri = path[f];
         if (ri === undefined) {
-          return [v, fightsBefore];
+          return [v, fightsBefore, eventsBefore];
         } else {
           return [
-            v + valueFunc(map[f][ri]?.typ, f, gold, fightsBefore),
+            v + valueFunc(map[f][ri]?.typ, f, gold, fightsBefore, eventsBefore),
             fightsBefore + (map[f][ri]?.typ === "fight" ? 1 : 0),
+            eventsBefore + (map[f][ri]?.typ === "event" ? 1 : 0),
           ];
         }
       },
-      [0, 0],
+      [0, 0, 0],
     );
     const valueStr = value.toFixed(2);
     const entry = paths[valueStr] || [];
@@ -187,7 +188,7 @@ function PathRanking({
   onHighlight?: (path: Path[] | undefined) => void,
   setTrackMostValuable: (value: boolean) => void,
   startCoordinates: Coordinate[],
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => number,
 }) {
   const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
   return <div className={ styles["path-ranking"] }>
@@ -361,7 +362,7 @@ function App() {
     }));
   };
 
-  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number) => {
+  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => {
     switch (rt) {
       case "elite":
         return eliteValue;
@@ -370,7 +371,7 @@ function App() {
         return eventValue;
 
       case "fight":
-        if ((startCoordinate ? fightsBeforePath : 0) + fightEvents + fightsBefore <= 2) {
+        if ((startCoordinate ? fightsBeforePath : 0) + Math.min(fightEvents, eventsBefore) + fightsBefore <= 2) {
           return easyFightValue;
         } else {
           return hardFightValue;
