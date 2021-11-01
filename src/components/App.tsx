@@ -494,46 +494,42 @@ function App() {
         </p>
 
         <p>Room values:</p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Easy fight:</label>
           <FloatInput value={ easyFightValue } onChange={ setEasyFightValue }/>
-        </p>
-        <p>
-          <label className={ styles["value-input-label"] }>Hard fight:</label>
+          <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-right"] }>Hard fight:</label>
           <FloatInput value={ hardFightValue } onChange={ setHardFightValue }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Elite:</label>
           <FloatInput value={ eliteValue } onChange={ setEliteValue }/>
-        </p>
-        <p>
-          <label className={ styles["value-input-label"] }>Super:</label>
+          <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-right"] }>Super:</label>
           <FloatInput value={ superValue } onChange={ setSuperValue }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Rest:</label>
           <FloatInput value={ restValue } onChange={ setRestValue }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Event:</label>
           <FloatInput value={ eventValue } onChange={ setEventValue }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Shop:</label>
           <FloatInput value={ shopValue } onChange={ setShopValue }/>
           { ' + ' }
           <FloatInput value={ shopGoldValue } onChange={ setShopGoldValue }/>
           { ' per 100 gold' }
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Treasure:</label>
           <FloatInput value={ treasureValue } onChange={ setTreasureValue }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Current gold:</label>
           <FloatInput value={ gold } onChange={ setGold }/>
         </p>
-        <p>
+        <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Fights in ?s:</label>
           <FloatInput value={ fightEvents } onChange={ setFightEvents }/>
         </p>

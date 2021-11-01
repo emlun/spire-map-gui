@@ -41,9 +41,23 @@
   margin-right: 1em;
 }
 
+.info p.value-row {
+  margin: 0.2em 0;
+}
+
+.value-row input {
+  margin-right: 1em;
+  width: 3em;
+}
+
 .value-input-label {
   display: inline-block;
   width: 7em;
+}
+
+.value-input-label-right {
+  width: 5em;
+  margin-right: 0.5em;
 }
 
 .path-ranking ol {
