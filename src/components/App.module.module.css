@@ -50,6 +50,10 @@
   width: 3em;
 }
 
+.value-row-shop input {
+  margin-right: 0.2em;
+}
+
 .value-input-label {
   display: inline-block;
   width: 7em;

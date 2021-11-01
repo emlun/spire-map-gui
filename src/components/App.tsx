@@ -516,7 +516,7 @@ function App() {
           <label className={ styles["value-input-label"] }>Event:</label>
           <FloatInput value={ eventValue } onChange={ setEventValue }/>
         </p>
-        <p className={ styles["value-row"] }>
+        <p className={ styles["value-row"] + ' ' + styles["value-row-shop"] }>
           <label className={ styles["value-input-label"] }>Shop:</label>
           <FloatInput value={ shopValue } onChange={ setShopValue }/>
           { ' + ' }
