@@ -270,6 +270,7 @@ function App() {
   const [treasureValue, setTreasureValue] = useLocalStorage("treasureValue", 0.8);
   const [gold, setGold] = useLocalStorage("gold", 99);
   const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 0);
+  const [fightsBeforePath, setFightsBeforePath] = useLocalStorage("fightsBeforePath", 0);
 
   const [trackMostValuable, setTrackMostValuable] = useState(false);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
@@ -329,6 +330,7 @@ function App() {
       eliteValue,
       eventValue,
       fightEvents,
+      fightsBeforePath,
       gold,
       hardFightValue,
       map,
@@ -358,7 +360,7 @@ function App() {
         return eventValue;
 
       case "fight":
-        if (fightEvents + fightsBefore <= 2) {
+        if ((startCoordinate ? fightsBeforePath : 0) + fightEvents + fightsBefore <= 2) {
           return easyFightValue;
         } else {
           return hardFightValue;
@@ -532,6 +534,15 @@ function App() {
         <p className={ styles["value-row"] }>
           <label className={ styles["value-input-label"] }>Fights in ?s:</label>
           <FloatInput value={ fightEvents } onChange={ setFightEvents }/>
+        </p>
+        <p className={ styles["value-row"] }>
+          <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-auto"] }>
+            Fights before path start:
+          </label>
+          <FloatInput
+            value={ startCoordinate ? fightsBeforePath : 0 }
+            onChange={ startCoordinate && setFightsBeforePath }
+          />
         </p>
 
         <PathRanking

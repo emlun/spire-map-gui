@@ -60,6 +60,11 @@
   margin-right: 0.5em;
 }
 
+.value-input-label-auto {
+  width: initial;
+  margin-right: 0.5em;
+}
+
 .path-ranking ol {
   padding: 0 2em;
 }
