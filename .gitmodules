@@ -1,0 +1,3 @@
+[submodule "sts_map_oracle"]
+	path = sts_map_oracle
+	url = https://github.com/Ru5ty0ne/sts_map_oracle.git

@@ -10,7 +10,7 @@ const projectName = 'spire-map-gui';
 const version = childProcess.execSync('git describe --always --tags --match=v* --long', { encoding: 'utf-8' }).replace('-', '.');
 console.log('Version of this build:', version);
 
-const SRC_DIR = path.resolve(__dirname, 'src');
+const SRC_DIR = path.resolve(__dirname, 'js');
 const BUILD_DIR = path.resolve(__dirname, 'build');
 
 const context = SRC_DIR;
@@ -49,13 +49,17 @@ module.exports = {
   context,
 
   entry: {
-    index: ['react-hot-loader/patch', path.resolve(SRC_DIR, 'index')],
+    index: ['react-hot-loader/patch', path.resolve(SRC_DIR, 'bootstrap')],
   },
 
   output: {
     path: BUILD_DIR,
     filename: '[name]-[fullhash].js',
     globalObject: 'this', // Workaround for a bug in Webpack https://github.com/webpack/webpack/issues/6642
+  },
+
+  experiments: {
+    asyncWebAssembly: true,
   },
 
   resolve: {
@@ -68,6 +72,7 @@ module.exports = {
         ? '.prod.ts'
         : '.dev.ts',
       '.ts', '.tsx', '.js', '.jsx',
+      '.wasm',
     ],
 
     modules: [
@@ -86,7 +91,7 @@ module.exports = {
           options: {
             plugins: [
               ['react-css-modules', {
-                context: 'src',
+                context: 'js',
               }],
             ],
           },

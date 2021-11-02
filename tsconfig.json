@@ -4,8 +4,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "components/Root": ["src/components/Root.dev.tsx"],
-      "*": ["src/*", "node_modules/*"]
+      "components/Root": ["js/components/Root.dev.tsx"],
+      "*": ["js/*", "node_modules/*"]
     },
     "sourceMap": true,
     "noImplicitAny": true,
