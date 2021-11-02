@@ -3,6 +3,8 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
+import { generate_map } from 'spire-map-gui-wasm';
+
 import { Coordinate, FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
 import FloatInput from 'components/FloatInput';
 import GithubCorner from 'components/GithubCorner';
@@ -406,6 +408,7 @@ function App() {
     () => {
       const params = new URLSearchParams(window.location.search);
       const mapParam = params.get('map');
+      const seedParam = params.get('seed');
       if (mapParam) {
         if (mapParam.startsWith("0:")) {
           const mapCompressed = base64urlDecode(mapParam.substring(2));
@@ -416,6 +419,14 @@ function App() {
           setMap(mapRestored);
         } else {
           console.error("Unknown map serialization version:", mapParam);
+        }
+      } else if (seedParam) {
+        if (seedParam.startsWith("0:")) {
+          const seed = BigInt(seedParam.substring(2));
+          const seedMap = generate_map(BigInt(seed), 0);
+          setMap(JSON.parse(seedMap));
+        } else {
+          console.error("Unknown seed serialization version:", seedParam);
         }
       }
     },
