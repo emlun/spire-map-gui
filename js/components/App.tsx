@@ -36,8 +36,6 @@ function App() {
   const [map, setMap] = useState<MapDef>(initialMap);
   const [startCoordinate, setStartCoordinate] = useState<Coordinate>();
 
-  const mapString = JSON.stringify(map);
-
   useEffect(
     () => {
       const params = new URLSearchParams(window.location.search);
@@ -69,6 +67,7 @@ function App() {
 
   useEffect(
     () => {
+      const mapString = JSON.stringify(map);
       const te = new TextEncoder();
       const mapBytes = te.encode(mapString);
       const mapCompressed = pako.deflate(mapBytes);
@@ -76,7 +75,7 @@ function App() {
       const mapHref = window.location.origin + window.location.pathname + '?map=0:' + mapBase64;
       window.history.replaceState(null, "", mapHref);
     },
-    [mapString]
+    [map]
   );
 
   return <div className={ styles.wrapper }>
