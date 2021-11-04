@@ -1,6 +1,10 @@
 .room-button {
 }
 
+.room-button.selected {
+  border: 0.25rem solid blue;
+}
+
 .icon {
   background-origin: border-box;
   background-size: auto 1.9rem;
