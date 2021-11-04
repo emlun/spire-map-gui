@@ -7,6 +7,7 @@ import { generate_map } from 'wasm';
 
 import { Coordinate, FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
 import FloatInput from 'components/FloatInput';
+import { useLocalStorage } from 'utils';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
@@ -234,21 +235,6 @@ function PathRanking({
       })}
     </ol>
   </div>;
-}
-
-function useLocalStorage<T>(key: string, initialValue: T) {
-  if (window.localStorage) {
-    const [value, setValue] = useState(
-      JSON.parse(window.localStorage.getItem(key) || JSON.stringify(initialValue))
-    );
-    useEffect(
-      () => window.localStorage.setItem(key, JSON.stringify(value)),
-      [value],
-    );
-    return [value, setValue];
-  } else {
-    return useState(initialValue);
-  }
 }
 
 function App() {
