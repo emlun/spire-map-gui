@@ -3,10 +3,11 @@
   flex-direction: column;
   flex-shrink: 0;
   flex-wrap: nowrap;
+  width: 43rem;
 }
 
 .map canvas {
-  height: 1.95rem;
+  height: 1.78rem;
 }
 
 .floor {
@@ -29,14 +30,13 @@
   flex-basis: 5rem;
 }
 
-.connect-button.room-selected {
-  border: 2px solid red;
+.width-suppressor {
+  display: inline-block;
+  width: 0;
+  overflow: visible;
 }
 
-.connect-button.room-selected-neighbor {
-  border: 2px solid blue;
-}
-
-.add-drop-floor {
-  width: 2rem;
+.toggle-super {
+  position: relative;
+  top: 0.05rem;
 }

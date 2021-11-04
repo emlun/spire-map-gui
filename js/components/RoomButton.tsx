@@ -6,11 +6,13 @@ import styles from './RoomButton.module.css';
 
 
 interface Props {
+  isSelected?: boolean,
   room: RoomDef,
   onClick?: () => void,
 }
 
 export default function RoomButton({
+  isSelected,
   room,
   onClick,
 }: Props) {
@@ -19,6 +21,7 @@ export default function RoomButton({
       styles["room-button"]
       + ' ' + styles["icon"]
       + ' ' + styles["icon-" + room.typ]
+      + (isSelected ? ' ' + styles["selected"] : '')
     }
     onClick={ onClick }
     title={ room.typ }

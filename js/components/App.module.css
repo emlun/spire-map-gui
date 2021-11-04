@@ -12,6 +12,41 @@
   align-items: flex-start;
 }
 
+.left-pane {
+  flex-shrink: 0;
+  width: 47rem;
+}
+
+.right-pane {
+  padding: 0 2em;
+}
+
+.mode-select {
+  text-align: center;
+  padding-top: 15rem;
+}
+
+.mode-select input {
+  margin-left: 2em;
+}
+
+.act-select {
+  padding: 0.5em 4rem 0.5em 3rem;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.act-select span {
+  margin: 0 2em;
+}
+
+.act-select button {
+  width: 5em;
+}
+
+
 .footer {
   border-top: 1px solid rgba(128, 128, 128, 0.5);
   color: #aaa;
