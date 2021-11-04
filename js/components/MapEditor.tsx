@@ -4,6 +4,7 @@ import _ from 'underscore';
 import { Coordinate, FloorNum, MapDef, Path, RoomDef, RoomType, floorNums, roomTypes } from 'types/map';
 
 import ConnectionCanvas from 'components/ConnectionCanvas';
+import RoomButton from 'components/RoomButton';
 
 import styles from './MapEditor.module.css';
 
@@ -24,24 +25,6 @@ export const initialMap: MapDef = {
   13: [{ typ: "fight", connections: [0] }],
   14: [{ typ: "fight", connections: [0] }],
   15: [{ typ: "rest", connections: [] }],
-}
-
-interface RoomButtonProps {
-  room: RoomDef,
-  onClick?: () => void,
-}
-
-function RoomButton({
-  room,
-  onClick,
-}: RoomButtonProps) {
-  return <button type="button"
-    className={ styles["room-button"] + ' ' + styles["icon"] + ' ' + styles["icon-" + room.typ] }
-    onClick={ onClick }
-    title={ room.typ }
-  >
-    { room.typ }
-  </button>;
 }
 
 
