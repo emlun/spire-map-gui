@@ -10,7 +10,7 @@ import FloatInput from 'components/FloatInput';
 import GithubCorner from 'components/GithubCorner';
 import MapEditor, { initialMap } from 'components/MapEditor';
 
-import styles from './App.module.module.css';
+import styles from './App.module.css';
 
 
 function base64urlEncode(b: Uint8Array): string {
