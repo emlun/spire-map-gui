@@ -502,6 +502,8 @@ export default function InfoPanel({
       <label className={ styles["value-input-label"] }>Treasure:</label>
       <FloatInput value={ treasureValue } onChange={ setTreasureValue }/>
     </p>
+
+    <p>Settings:</p>
     <p className={ styles["value-row"] + ' ' + styles["value-row-shop"] }>
       <label className={ styles["value-input-label"] }>Gold:</label>
       <FloatInput value={ startGold } onChange={ setStartGold }/>
