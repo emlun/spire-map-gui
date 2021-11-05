@@ -86,18 +86,27 @@ type PathState = {
   eventsBefore: number,
 }
 
+type RankingSettings = {
+  startCoordinates: Coordinate[],
+  startGold: number,
+}
+
 function rankPaths(
   valueFunc: (rt: RoomType, f: FloorNum, state: PathState) => number,
   map: MapDef,
-  gold: number,
+  settings: RankingSettings,
   numPaths: number,
-  startCoordinates: Coordinate[],
 ): [string, Path[]][] {
   let paths: { [value: string]: Path[] } = {};
+  const {
+    startGold,
+    startCoordinates,
+  } = settings;
+
   for (const path of findAllPaths(map, startCoordinates)) {
     const [value, ] = floorNums.reduce(
       ([v, state], f) => {
-        const { fightsBefore, eventsBefore } = state;
+        const { gold, fightsBefore, eventsBefore } = state;
         const ri = path[f];
         if (ri === undefined) {
           return [v, state];
@@ -112,7 +121,7 @@ function rankPaths(
           ];
         }
       },
-      [0, { gold, fightsBefore: 0, eventsBefore: 0 }],
+      [0, { gold: startGold, fightsBefore: 0, eventsBefore: 0 }],
     );
     const valueStr = value.toFixed(2);
     const entry = paths[valueStr] || [];
@@ -163,27 +172,25 @@ function PathsCounter({
 }
 
 function PathRanking({
-  gold,
   highlightedPaths,
   isTrackingMostValuable,
   label,
   map,
-  onHighlight,
-  startCoordinates,
+  settings,
   valueFunc,
+  onHighlight,
   setTrackMostValuable,
 }: {
-  gold: number,
   highlightedPaths?: Path[],
   isTrackingMostValuable: boolean,
   label?: React.ReactNode,
   map: MapDef,
+  settings: RankingSettings,
+  valueFunc: (rt: RoomType, f: FloorNum, state: PathState) => number,
   onHighlight?: (path: Path[] | undefined) => void,
   setTrackMostValuable: (value: boolean) => void,
-  startCoordinates: Coordinate[],
-  valueFunc: (rt: RoomType, f: FloorNum, state: PathState) => number,
 }) {
-  const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
+  const ranking = rankPaths(valueFunc, map, settings, 15);
   return <div className={ styles["path-ranking"] }>
     { label }
     { ':' }
@@ -259,7 +266,7 @@ export default function InfoPanel({
   const [shopGoldValue, setShopGoldValue] = useLocalStorage("shopGoldValue", 0.4);
   const [superValue, setSuperValue] = useLocalStorage("superValue", 1.3);
   const [treasureValue, setTreasureValue] = useLocalStorage("treasureValue", 0.8);
-  const [gold, setGold] = useLocalStorage("gold", 99);
+  const [startGold, setStartGold] = useLocalStorage("startGold", 99);
   const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 0);
   const [fightsBeforePath, setFightsBeforePath] = useLocalStorage("fightsBeforePath", 0);
 
@@ -317,7 +324,7 @@ export default function InfoPanel({
     () => {
       if (trackMostValuable) {
         setHighlightPathTypes(undefined);
-        const ranking = rankPaths(valuateRoom, map, gold, 1, startCoordinates);
+        const ranking = rankPaths(valuateRoom, map, { startGold, startCoordinates }, 1);
         if (ranking.length > 0) {
           setHighlightedPaths(ranking[0][1]);
         }
@@ -329,13 +336,13 @@ export default function InfoPanel({
       eventValue,
       fightEvents,
       fightsBeforePath,
-      gold,
       hardFightValue,
       map,
       restValue,
       shopGoldValue,
       shopValue,
       startCoordinate,
+      startGold,
       superValue,
       trackMostValuable,
       treasureValue,
@@ -368,7 +375,7 @@ export default function InfoPanel({
         return restValue;
 
       case "shop":
-        return shopValue + shopGoldValue * gold / 100;
+        return shopValue + shopGoldValue * state.gold / 100;
 
       case "super":
         return superValue;
@@ -479,7 +486,7 @@ export default function InfoPanel({
     </p>
     <p className={ styles["value-row"] }>
       <label className={ styles["value-input-label"] }>Current gold:</label>
-      <FloatInput value={ gold } onChange={ setGold }/>
+      <FloatInput value={ startGold } onChange={ setStartGold }/>
     </p>
     <p className={ styles["value-row"] }>
       <label className={ styles["value-input-label"] }>Fights in ?s:</label>
@@ -496,14 +503,13 @@ export default function InfoPanel({
     </p>
 
     <PathRanking
-      gold={ gold }
       highlightedPaths={ highlightedPaths }
       isTrackingMostValuable={ trackMostValuable }
       label="Most valuable paths"
       map={ map }
+      settings={{ startGold, startCoordinates }}
       onHighlight={ setHighlightRanked }
       setTrackMostValuable={ setTrackMostValuable }
-      startCoordinates={ startCoordinates }
       valueFunc={ valuateRoom }
     />
   </div>;
