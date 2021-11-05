@@ -283,7 +283,7 @@ export default function InfoPanel({
   const [startGold, setStartGold] = useLocalStorage("startGold", 99);
   const [goldPerElite, setGoldPerElite] = useLocalStorage("goldPerElite", 30);
   const [goldPerFight, setGoldPerFight] = useLocalStorage("goldPerFight", 15);
-  const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 0);
+  const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 1);
   const [fightsBeforePath, setFightsBeforePath] = useLocalStorage("fightsBeforePath", 0);
 
   const [trackMostValuable, setTrackMostValuable] = useState(true);
