@@ -286,7 +286,7 @@ export default function InfoPanel({
   const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 0);
   const [fightsBeforePath, setFightsBeforePath] = useLocalStorage("fightsBeforePath", 0);
 
-  const [trackMostValuable, setTrackMostValuable] = useState(false);
+  const [trackMostValuable, setTrackMostValuable] = useState(true);
   const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
 
   const customCountTypes = _(customCountTypesSelection).chain().pick(b => b || false).keys().value() as RoomType[];
