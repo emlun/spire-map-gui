@@ -80,8 +80,14 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startCoordinates: C
   return [maxn, maxPaths];
 }
 
+type PathState = {
+  gold: number,
+  fightsBefore: number,
+  eventsBefore: number,
+}
+
 function rankPaths(
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, state: PathState) => number,
   map: MapDef,
   gold: number,
   numPaths: number,
@@ -90,19 +96,23 @@ function rankPaths(
   let paths: { [value: string]: Path[] } = {};
   for (const path of findAllPaths(map, startCoordinates)) {
     const [value, ] = floorNums.reduce(
-      ([v, fightsBefore, eventsBefore], f) => {
+      ([v, state], f) => {
+        const { fightsBefore, eventsBefore } = state;
         const ri = path[f];
         if (ri === undefined) {
-          return [v, fightsBefore, eventsBefore];
+          return [v, state];
         } else {
           return [
-            v + valueFunc(map[f][ri]?.typ, f, gold, fightsBefore, eventsBefore),
-            fightsBefore + (map[f][ri]?.typ === "fight" ? 1 : 0),
-            eventsBefore + (map[f][ri]?.typ === "event" ? 1 : 0),
+            v + valueFunc(map[f][ri]?.typ, f, state),
+            {
+              ...state,
+              fightsBefore: fightsBefore + (map[f][ri]?.typ === "fight" ? 1 : 0),
+              eventsBefore: eventsBefore + (map[f][ri]?.typ === "event" ? 1 : 0),
+            }
           ];
         }
       },
-      [0, 0, 0],
+      [0, { gold, fightsBefore: 0, eventsBefore: 0 }],
     );
     const valueStr = value.toFixed(2);
     const entry = paths[valueStr] || [];
@@ -171,7 +181,7 @@ function PathRanking({
   onHighlight?: (path: Path[] | undefined) => void,
   setTrackMostValuable: (value: boolean) => void,
   startCoordinates: Coordinate[],
-  valueFunc: (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => number,
+  valueFunc: (rt: RoomType, f: FloorNum, state: PathState) => number,
 }) {
   const ranking = rankPaths(valueFunc, map, gold, 15, startCoordinates);
   return <div className={ styles["path-ranking"] }>
@@ -339,7 +349,7 @@ export default function InfoPanel({
     }));
   };
 
-  const valuateRoom = (rt: RoomType, f: FloorNum, gold: number, fightsBefore: number, eventsBefore: number) => {
+  const valuateRoom = (rt: RoomType, f: FloorNum, state: PathState) => {
     switch (rt) {
       case "elite":
         return eliteValue;
@@ -348,7 +358,7 @@ export default function InfoPanel({
         return eventValue;
 
       case "fight":
-        if ((startCoordinate ? fightsBeforePath : 0) + Math.min(fightEvents, eventsBefore) + fightsBefore <= 2) {
+        if ((startCoordinate ? fightsBeforePath : 0) + Math.min(fightEvents, state.eventsBefore) + state.fightsBefore <= 2) {
           return easyFightValue;
         } else {
           return hardFightValue;
