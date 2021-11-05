@@ -5,8 +5,8 @@
   "description": "Slay the Spire map analysis GUI",
   "main": "src/index.js",
   "scripts": {
-    "build": "rm -rf build && rustup run nightly wasm-pack build && NODE_ENV=production webpack",
-    "build-wasm": "rustup run nightly wasm-pack build",
+    "build": "rm -rf build && wasm-pack build && NODE_ENV=production webpack",
+    "build-wasm": "wasm-pack build",
     "lint": "tsc --noEmit",
     "start": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
