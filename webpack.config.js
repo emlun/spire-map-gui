@@ -54,6 +54,7 @@ module.exports = {
 
   output: {
     path: BUILD_DIR,
+    clean: true,
     filename: '[name]-[fullhash].js',
     globalObject: 'this', // Workaround for a bug in Webpack https://github.com/webpack/webpack/issues/6642
   },
