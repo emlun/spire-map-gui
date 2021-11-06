@@ -2,7 +2,9 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
 
   "compilerOptions": {
+    "module": "es2020",
     "baseUrl": ".",
+    "moduleResolution": "node",
     "paths": {
       "components/Root": ["js/components/Root.dev.tsx"],
       "*": ["js/*", "node_modules/*"]

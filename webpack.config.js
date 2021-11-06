@@ -2,7 +2,6 @@ const childProcess = require('child_process');
 const path = require('path');
 
 const webpack = require('webpack');
-const ForkTsCheckerPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const projectName = 'spire-map-gui';
@@ -26,15 +25,6 @@ const devConfig = {
 };
 
 const devPlugins = [
-  new ForkTsCheckerPlugin({
-    typescript: {
-      configFile: path.resolve(__dirname, 'tsconfig.json'),
-      disgnosticOptions: {
-        semantic: true,
-        syntactic: true,
-      }
-    }
-  }),
 ];
 
 const prodConfig = {
@@ -85,7 +75,25 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ts|js)x?$/,
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              plugins: [
+                ['react-css-modules', {
+                  context: 'js',
+                }],
+              ],
+            },
+          },
+          { loader: 'ts-loader' },
+        ],
+      },
+
+      {
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
