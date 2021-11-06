@@ -3,6 +3,7 @@ const path = require('path');
 
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 
 const projectName = 'spire-map-gui';
 
@@ -13,6 +14,17 @@ const SRC_DIR = path.resolve(__dirname, 'js');
 const BUILD_DIR = path.resolve(__dirname, 'build');
 
 const context = SRC_DIR;
+
+const prodConfig = {
+  mode: 'production',
+  devtool: 'source-map',
+};
+
+const prodPlugins = [
+  new WasmPackPlugin({
+    crateDirectory: __dirname,
+  })
+];
 
 const devConfig = {
   mode: 'development',
@@ -25,14 +37,7 @@ const devConfig = {
 };
 
 const devPlugins = [
-];
-
-const prodConfig = {
-  mode: 'production',
-  devtool: 'source-map',
-};
-
-const prodPlugins = [
+  ...prodPlugins,
 ];
 
 module.exports = {
@@ -65,6 +70,10 @@ module.exports = {
       '.ts', '.tsx', '.js', '.jsx',
       '.wasm',
     ],
+
+    alias: {
+      wasm: path.resolve(__dirname, 'pkg'),
+    },
 
     modules: [
       SRC_DIR,

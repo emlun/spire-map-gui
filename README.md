@@ -20,12 +20,9 @@ To run the development server:
 
 ```
 $ npm install
-$ npm run build-wasm
 $ npm start
 $ $BROWSER http://localhost:8080
 ```
-
-Re-run `npm run build-wasm` whenever you edit the Rust code.
 
 To build artifacts:
 

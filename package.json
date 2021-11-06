@@ -5,8 +5,7 @@
   "description": "Slay the Spire map analysis GUI",
   "main": "src/index.js",
   "scripts": {
-    "build": "wasm-pack build && NODE_ENV=production webpack",
-    "build-wasm": "wasm-pack build",
+    "build": "NODE_ENV=production webpack",
     "start": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,6 +25,7 @@
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@types/underscore": "^1.11.3",
+    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
     "babel-loader": "^8.2.3",
     "babel-plugin-react-css-modules": "^5.2.6",
     "css-loader": "^6.5.0",
@@ -46,7 +46,6 @@
     "pako": "^2.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "spire-map-gui-wasm": "file:./pkg",
     "underscore": "^1.13.1"
   }
 }
