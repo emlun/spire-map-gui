@@ -9,6 +9,7 @@ I made this because it seemed like an interesting project to build, I have no pa
 Requirements
 ---
 
+- [Rust][rust-lang]
 - [npm][npm]
 
 
@@ -34,3 +35,5 @@ Then copy the contents of `build/` into your favourite web server.
 
 
 [npm]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+[rust-lang]: https://www.rust-lang.org/learn/get-started
+[wasm-pack]: https://rustwasm.github.io/docs/wasm-pack/quickstart.html

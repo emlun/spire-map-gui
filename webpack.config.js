@@ -1,21 +1,30 @@
-/* eslint no-console: 0 */
-
 const childProcess = require('child_process');
 const path = require('path');
 
 const webpack = require('webpack');
-const ForkTsCheckerPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 
 const projectName = 'spire-map-gui';
 
 const version = childProcess.execSync('git describe --always --tags --match=v* --long', { encoding: 'utf-8' }).replace('-', '.');
 console.log('Version of this build:', version);
 
-const SRC_DIR = path.resolve(__dirname, 'src');
+const SRC_DIR = path.resolve(__dirname, 'js');
 const BUILD_DIR = path.resolve(__dirname, 'build');
 
 const context = SRC_DIR;
+
+const prodConfig = {
+  mode: 'production',
+  devtool: 'source-map',
+};
+
+const prodPlugins = [
+  new WasmPackPlugin({
+    crateDirectory: __dirname,
+  })
+];
 
 const devConfig = {
   mode: 'development',
@@ -28,37 +37,25 @@ const devConfig = {
 };
 
 const devPlugins = [
-  new webpack.HotModuleReplacementPlugin(),
-  new ForkTsCheckerPlugin({
-    typescript: {
-      configFile: path.resolve(__dirname, 'tsconfig.json'),
-      disgnosticOptions: {
-        semantic: true,
-        syntactic: true,
-      }
-    }
-  }),
-];
-
-const prodConfig = {
-  mode: 'production',
-  devtool: 'source-map',
-};
-
-const prodPlugins = [
+  ...prodPlugins,
 ];
 
 module.exports = {
   context,
 
   entry: {
-    index: ['react-hot-loader/patch', path.resolve(SRC_DIR, 'index')],
+    index: ['react-hot-loader/patch', path.resolve(SRC_DIR, 'bootstrap')],
   },
 
   output: {
     path: BUILD_DIR,
-    filename: '[name]-[hash].js',
+    clean: true,
+    filename: '[name]-[fullhash].js',
     globalObject: 'this', // Workaround for a bug in Webpack https://github.com/webpack/webpack/issues/6642
+  },
+
+  experiments: {
+    asyncWebAssembly: true,
   },
 
   resolve: {
@@ -71,7 +68,12 @@ module.exports = {
         ? '.prod.ts'
         : '.dev.ts',
       '.ts', '.tsx', '.js', '.jsx',
+      '.wasm',
     ],
+
+    alias: {
+      wasm: path.resolve(__dirname, 'pkg'),
+    },
 
     modules: [
       SRC_DIR,
@@ -82,21 +84,32 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        enforce: 'pre',
-        exclude: [/node_modules/],
-        loader: 'eslint-loader',
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              plugins: [
+                ['react-css-modules', {
+                  context: 'js',
+                }],
+              ],
+            },
+          },
+          { loader: 'ts-loader' },
+        ],
       },
 
       {
-        test: /\.(ts|js)x?$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
             plugins: [
               ['react-css-modules', {
-                context: 'src',
+                context: 'js',
               }],
             ],
           },

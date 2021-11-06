@@ -1,0 +1,63 @@
+.InfoPanel {
+}
+
+.InfoPanel p {
+  margin: 0.5em 0;
+}
+
+.highlight-paths-button {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.highlight-paths-button-selected {
+  border-color: blue;
+}
+
+.InfoPanel p.room-type-checkboxes {
+  padding-left: 3em;
+}
+
+.room-type-checkbox {
+  display: inline-block;
+}
+
+.checkbox-label {
+  margin-right: 1em;
+}
+
+.InfoPanel p.value-row {
+  margin: 0.2em 0;
+}
+
+.value-row input {
+  margin-right: 1em;
+  width: 2.5em;
+}
+
+.value-row-shop input {
+  margin-right: 0.2em;
+}
+
+.value-input-label {
+  display: inline-block;
+  width: 7em;
+}
+
+.value-input-label-right {
+  width: 5em;
+  margin-right: 0.5em;
+}
+
+.value-input-label-auto {
+  width: initial;
+  margin-right: 0.5em;
+}
+
+.path-ranking ol {
+  padding: 0 2em;
+}
+
+.path-ranking li {
+  padding: 0 1em;
+}

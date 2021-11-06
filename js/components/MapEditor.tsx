@@ -3,6 +3,9 @@ import _ from 'underscore';
 
 import { Coordinate, FloorNum, MapDef, Path, RoomDef, RoomType, floorNums, roomTypes } from 'types/map';
 
+import ConnectionCanvas from 'components/ConnectionCanvas';
+import RoomButton from 'components/RoomButton';
+
 import styles from './MapEditor.module.css';
 
 
@@ -24,24 +27,6 @@ export const initialMap: MapDef = {
   15: [{ typ: "rest", connections: [] }],
 }
 
-interface RoomButtonProps {
-  room: RoomDef,
-  onClick: () => void,
-}
-
-function RoomButton({
-  room,
-  onClick,
-}: RoomButtonProps) {
-  return <button type="button"
-    className={ styles["room-button"] + ' ' + styles["icon"] + ' ' + styles["icon-" + room.typ] }
-    onClick={ onClick }
-    title={ room.typ }
-  >
-    { room.typ }
-  </button>;
-}
-
 
 interface Props {
   highlightPaths?: Path[],
@@ -51,6 +36,7 @@ interface Props {
   setStartCoordinate: (update: (value: Coordinate | undefined) => (Coordinate | undefined)) => void,
 }
 
+
 function MapEditor({
   highlightPaths,
   map,
@@ -58,42 +44,7 @@ function MapEditor({
   setMap,
   setStartCoordinate,
 }: Props) {
-
   const [selectedRoom, setSelectedRoom] = useState<[FloorNum, number] | null>(null);
-  const canvasRefs = {
-    1: useRef<HTMLCanvasElement>(),
-    2: useRef<HTMLCanvasElement>(),
-    3: useRef<HTMLCanvasElement>(),
-    4: useRef<HTMLCanvasElement>(),
-    5: useRef<HTMLCanvasElement>(),
-    6: useRef<HTMLCanvasElement>(),
-    7: useRef<HTMLCanvasElement>(),
-    8: useRef<HTMLCanvasElement>(),
-    9: useRef<HTMLCanvasElement>(),
-    10: useRef<HTMLCanvasElement>(),
-    11: useRef<HTMLCanvasElement>(),
-    12: useRef<HTMLCanvasElement>(),
-    13: useRef<HTMLCanvasElement>(),
-    14: useRef<HTMLCanvasElement>(),
-    15: useRef<HTMLCanvasElement>(),
-  };
-  const canvasRefCallbacks = {
-    1: useCallback((node: HTMLCanvasElement) => { canvasRefs[1].current = node; drawConnections(); }, []),
-    2: useCallback((node: HTMLCanvasElement) => { canvasRefs[2].current = node; drawConnections(); }, []),
-    3: useCallback((node: HTMLCanvasElement) => { canvasRefs[3].current = node; drawConnections(); }, []),
-    4: useCallback((node: HTMLCanvasElement) => { canvasRefs[4].current = node; drawConnections(); }, []),
-    5: useCallback((node: HTMLCanvasElement) => { canvasRefs[5].current = node; drawConnections(); }, []),
-    6: useCallback((node: HTMLCanvasElement) => { canvasRefs[6].current = node; drawConnections(); }, []),
-    7: useCallback((node: HTMLCanvasElement) => { canvasRefs[7].current = node; drawConnections(); }, []),
-    8: useCallback((node: HTMLCanvasElement) => { canvasRefs[8].current = node; drawConnections(); }, []),
-    9: useCallback((node: HTMLCanvasElement) => { canvasRefs[9].current = node; drawConnections(); }, []),
-    10: useCallback((node: HTMLCanvasElement) => { canvasRefs[10].current = node; drawConnections(); }, []),
-    11: useCallback((node: HTMLCanvasElement) => { canvasRefs[11].current = node; drawConnections(); }, []),
-    12: useCallback((node: HTMLCanvasElement) => { canvasRefs[12].current = node; drawConnections(); }, []),
-    13: useCallback((node: HTMLCanvasElement) => { canvasRefs[13].current = node; drawConnections(); }, []),
-    14: useCallback((node: HTMLCanvasElement) => { canvasRefs[14].current = node; drawConnections(); }, []),
-    15: useCallback((node: HTMLCanvasElement) => { canvasRefs[15].current = node; drawConnections(); }, []),
-  }
 
   const addRoom = (f: FloorNum) => {
     setMap(map => {
@@ -101,10 +52,7 @@ function MapEditor({
         ...map[f],
         {
           typ: f == 9 ? "treasure" : "fight",
-          connections:
-            (f < 15 && map[f + 1 as FloorNum].length > 0)
-            ? [map[f + 1 as FloorNum].length - 1]
-            : [],
+          connections: f === 14 ? [0] : [],
         }
       ];
       if (f > 1) {
@@ -112,16 +60,6 @@ function MapEditor({
         return {
           ...map,
           [f]: thisFloor,
-          [fprev]: map[fprev].map((room, ri) => {
-            if (ri === map[fprev].length - 1) {
-              return {
-                ...room,
-                connections: _.union(room.connections, [thisFloor.length - 1]),
-              };
-            } else {
-              return room;
-            }
-          }),
         };
       } else {
         return {
@@ -200,54 +138,18 @@ function MapEditor({
     }));
   };
 
-  const drawConnections = () => {
-    floorNums.forEach(f => {
-      const canvas = canvasRefs[f].current;
-      if (canvas) {
-        canvas.height = canvas.scrollHeight;
-        canvas.width = canvas.scrollWidth;
-
-        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const floor = map[f];
-
-        floor.forEach((room, ri) => {
-          const roomX = (ri * 2 + 1) / (floor.length * 2) * canvas.width;
-          room.connections.forEach((connection) => {
-            const nextFloorRi = connection;
-            const nextRoomX = (nextFloorRi * 2 + 1) / (map[f + 1 as FloorNum].length * 2) * canvas.width;
-            ctx.beginPath();
-
-            if (highlightPaths
-                && f < 15
-                && highlightPaths.some(path =>
-                  path[f] === ri && path[f + 1 as FloorNum] === nextFloorRi
-                )
-            ) {
-              ctx.strokeStyle = 'red';
-              ctx.lineWidth = 4;
-            } else {
-              ctx.strokeStyle = 'black';
-              ctx.lineWidth = 1;
-            }
-
-            ctx.moveTo(nextRoomX, -10);
-            ctx.lineTo(roomX, canvas.height + 10);
-            ctx.stroke();
-          });
-        });
-      }
-    });
-  };
-
-  drawConnections();
-
   return <div className={ styles['map'] }>
 
     { floorNums.map((f: FloorNum) =>
       <React.Fragment key={`floor-${f}`}>
         { f < 15 &&
-          <canvas ref={ canvasRefCallbacks[f] } className={ styles['connection-canvas'] } /> }
+          <ConnectionCanvas
+            floor={ f }
+            highlightPaths={ highlightPaths }
+            roomsAbove={ map[f + 1 as FloorNum] }
+            roomsBelow={ map[f] }
+          />
+        }
 
         <div className={ styles['floor'] }>
           <span className={ styles["floor-num"] }>{ f }</span>
@@ -277,7 +179,7 @@ function MapEditor({
 
               <RoomButton
                 room={ room }
-                onClick={ () => cycleRoomType(f, ri) }
+                onClick={ f === 15 || f === 1 ? undefined : () => cycleRoomType(f, ri) }
               />
 
               { f < 15 &&
@@ -316,7 +218,7 @@ function MapEditor({
           <button type="button"
             className={ styles["add-drop-floor"] }
             onClick={ () => addRoom(f) }
-            disabled={ f === 15 }
+            disabled={ f === 15 || map[f].length >= 8 }
           >
             +
           </button>

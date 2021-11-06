@@ -6,7 +6,7 @@ import styles from './FloatInput.module.css';
 
 interface Props {
   value: number,
-  onChange: (value: number) => void,
+  onChange?: (value: number) => void,
 }
 
 function FloatInput({
@@ -17,7 +17,7 @@ function FloatInput({
   const onRawChanged = (event: { target: { value: string } }) => {
     setRawValue(event.target.value);
     const parsed = parseFloat(event.target.value);
-    if (!_.isNaN(parsed)) {
+    if (onChange && !_.isNaN(parsed)) {
       onChange(parsed);
     }
   };
@@ -25,7 +25,8 @@ function FloatInput({
   return (
     <input type="text"
       className={ styles["FloatInput"]}
-      value={ rawValue }
+      value={ onChange ? rawValue : value }
+      disabled={ !onChange }
       onChange={ onRawChanged }
     />
   );

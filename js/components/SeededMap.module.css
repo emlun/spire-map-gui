@@ -1,0 +1,42 @@
+.map {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  width: 43rem;
+}
+
+.map canvas {
+  height: 1.78rem;
+}
+
+.floor {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.floor-num {
+  flex-grow: 0;
+  text-align: center;
+  width: 3rem;
+}
+
+.room {
+  flex-grow: 1;
+  flex-shrink: 1;
+  text-align: center;
+  flex-basis: 5rem;
+}
+
+.width-suppressor {
+  display: inline-block;
+  width: 0;
+  overflow: visible;
+}
+
+.toggle-super {
+  position: relative;
+  top: 0.05rem;
+}

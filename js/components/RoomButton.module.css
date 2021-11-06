@@ -1,35 +1,12 @@
-.map {
-  flex-shrink: 0;
-  width: 47rem;
-}
-
-.floor {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: row;
-}
-
-.floor-num {
-  flex-grow: 0;
-  text-align: center;
-  width: 3rem;
-}
-
-.floor-num-selected {
-  border: 2px solid blue;
-}
-
-.room {
-  flex-grow: 1;
-  flex-shrink: 1;
-  text-align: center;
-  flex-basis: 5rem;
-}
-
 .room-button {
 }
 
+.room-button.selected {
+  border: 0.25rem solid blue;
+}
+
 .icon {
+  background-origin: border-box;
   background-size: auto 1.9rem;
   border-radius: 0.4rem;
   color: transparent;
@@ -39,57 +16,36 @@
 
 .icon-treasure {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/9/9e/Chest1.jpg");
-  background-position: 0.15rem 0;
+  background-position: 0.25rem 0.1rem;
 }
 
 .icon-elite {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Elite1.jpg");
-  background-position: -0.1rem 0;
+  background-position: 0.05rem 0.1rem;
 }
 
 .icon-event {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/f/f3/Unknown1.jpg");
-  background-position: 0.3rem 0;
+  background-position: 0.4rem 0.1rem;
 }
 
 .icon-fight {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Enemy1.jpg");
-  background-position: 0.2rem 0.1rem;
+  background-position: 0.3rem 0.15rem;
 }
 
 .icon-rest {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/4/46/Rest1.jpg");
-  background-position: 0.04rem -0.1rem;
+  background-position: 0.1rem 0;
 }
 
 .icon-shop {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/3/35/Shop1.jpg");
-  background-position: 0.3rem -0.1rem;
+  background-position: 0.4rem 0rem;
 }
 
 .icon-super {
   background-image: url("https://static.wikia.nocookie.net/slay-the-spire/images/5/5b/Elite1.jpg");
-  background-position: 2.5rem 0;
-  background-repeat: no-repeat;
-  color: initial;
-  text-align: left;
-  width: 5rem;
-}
-
-.connect-button.room-selected {
-  border: 2px solid red;
-}
-
-.connect-button.room-selected-neighbor {
-  border: 2px solid blue;
-}
-
-.add-drop-floor {
-  width: 2rem;
-}
-
-.connection-canvas {
-  margin-left: 3rem;
-  height: 1.9rem;
-  width: 40rem;
+  background-position: 0.05rem 0.1rem;
+  border: 0.2rem solid orange;
 }

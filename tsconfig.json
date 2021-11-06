@@ -2,11 +2,13 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
 
   "compilerOptions": {
+    "module": "es2020",
     "baseUrl": ".",
+    "moduleResolution": "node",
     "paths": {
-      "components/Root": ["src/components/Root.dev.tsx"],
-      "configureStore": ["src/configureStore.dev.ts"],
-      "*": ["src/*", "node_modules/*"]
+      "components/Root": ["js/components/Root.dev.tsx"],
+      "wasm": ["pkg"],
+      "*": ["js/*", "node_modules/*"]
     },
     "sourceMap": true,
     "noImplicitAny": true,
