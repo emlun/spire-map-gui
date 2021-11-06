@@ -328,7 +328,7 @@ export default function InfoPanel({
 
   useEffect(
     () => {
-      if (!trackMostValuable) {
+      if (!trackMostValuable && !highlightPathTypes) {
         setHighlightedPaths(undefined);
       }
 
