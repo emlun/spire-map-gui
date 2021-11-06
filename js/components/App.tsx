@@ -3,7 +3,7 @@ import pako from 'pako';
 import base64 from 'base64-js';
 import _ from 'underscore';
 
-import { generate_map } from 'spire-map-gui-wasm';
+import { generate_map } from 'wasm';
 
 import { Coordinate, FloorNum, MapDef, Path, RoomType, floorNums, roomTypes } from 'types/map';
 import FloatInput from 'components/FloatInput';
