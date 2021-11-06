@@ -1,5 +1,5 @@
 export const roomTypes = [
-  "fight",
+  "enemy",
   "elite",
   "super",
   "rest",

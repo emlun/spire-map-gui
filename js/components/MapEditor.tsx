@@ -10,20 +10,20 @@ import styles from './MapEditor.module.css';
 
 
 export const initialMap: MapDef = {
-  1: [{ typ: "fight", connections: [0, 1] }, { typ: "fight", connections: [1, 2] }],
+  1: [{ typ: "enemy", connections: [0, 1] }, { typ: "enemy", connections: [1, 2] }],
   2: [{ typ: "elite", connections: [0] }, { typ: "event", connections: [0] }, { typ: "shop", connections: [0] }],
-  3: [{ typ: "fight", connections: [0] }],
-  4: [{ typ: "fight", connections: [0] }],
-  5: [{ typ: "fight", connections: [0] }],
-  6: [{ typ: "fight", connections: [0] }],
-  7: [{ typ: "fight", connections: [0] }],
-  8: [{ typ: "fight", connections: [0, 1] }],
+  3: [{ typ: "enemy", connections: [0] }],
+  4: [{ typ: "enemy", connections: [0] }],
+  5: [{ typ: "enemy", connections: [0] }],
+  6: [{ typ: "enemy", connections: [0] }],
+  7: [{ typ: "enemy", connections: [0] }],
+  8: [{ typ: "enemy", connections: [0, 1] }],
   9: [{ typ: "treasure", connections: [0] }, { typ: "treasure", connections: [0] }],
-  10: [{ typ: "fight", connections: [0] }],
-  11: [{ typ: "fight", connections: [0] }],
-  12: [{ typ: "fight", connections: [0] }],
-  13: [{ typ: "fight", connections: [0] }],
-  14: [{ typ: "fight", connections: [0] }],
+  10: [{ typ: "enemy", connections: [0] }],
+  11: [{ typ: "enemy", connections: [0] }],
+  12: [{ typ: "enemy", connections: [0] }],
+  13: [{ typ: "enemy", connections: [0] }],
+  14: [{ typ: "enemy", connections: [0] }],
   15: [{ typ: "rest", connections: [] }],
 }
 
@@ -51,7 +51,7 @@ function MapEditor({
       const thisFloor = [
         ...map[f],
         {
-          typ: f == 9 ? "treasure" : "fight",
+          typ: f == 9 ? "treasure" : "enemy",
           connections: f === 14 ? [0] : [],
         }
       ];

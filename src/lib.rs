@@ -43,7 +43,7 @@ pub fn generate_map(seed: i64, act_idx: usize) -> String {
                     .map(|node| Room {
                         typ: match node.class.unwrap() {
                             RoomType::EventRoom => "event",
-                            RoomType::MonsterRoom => "fight",
+                            RoomType::MonsterRoom => "enemy",
                             RoomType::MonsterRoomElite => "elite",
                             RoomType::RestRoom => "rest",
                             RoomType::ShopRoom => "shop",

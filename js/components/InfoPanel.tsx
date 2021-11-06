@@ -82,13 +82,13 @@ function findMostOfTypes(roomTypes: RoomType[], map: MapDef, startCoordinates: C
 
 type PathState = {
   gold: number,
-  fightsBefore: number,
+  enemiesBefore: number,
   eventsBefore: number,
 }
 
 type RankingSettings = {
   goldPerElite: number,
-  goldPerFight: number,
+  goldPerEnemy: number,
   startCoordinates: Coordinate[],
   startGold: number,
 }
@@ -102,7 +102,7 @@ function rankPaths(
   let paths: { [value: string]: Path[] } = {};
   const {
     startGold,
-    goldPerFight,
+    goldPerEnemy,
     goldPerElite,
     startCoordinates,
   } = settings;
@@ -110,7 +110,7 @@ function rankPaths(
   for (const path of findAllPaths(map, startCoordinates)) {
     const [value, ] = floorNums.reduce(
       ([v, state], f) => {
-        const { gold, fightsBefore, eventsBefore } = state;
+        const { gold, enemiesBefore, eventsBefore } = state;
         const ri = path[f];
         if (ri === undefined) {
           return [v, state];
@@ -122,20 +122,20 @@ function rankPaths(
               gold: (map[f][ri]?.typ === "shop"
                    ? 0
                    : (gold + (
-                     map[f][ri]?.typ === "fight"
-                     ? goldPerFight
+                     map[f][ri]?.typ === "enemy"
+                     ? goldPerEnemy
                      : (
                        map[f][ri]?.typ === "elite" || map[f][ri]?.typ === "super"
                        ? goldPerElite
                        : 0
               )))),
-              fightsBefore: fightsBefore + (map[f][ri]?.typ === "fight" ? 1 : 0),
+              enemiesBefore: enemiesBefore + (map[f][ri]?.typ === "enemy" ? 1 : 0),
               eventsBefore: eventsBefore + (map[f][ri]?.typ === "event" ? 1 : 0),
             }
           ];
         }
       },
-      [0, { gold: startGold, fightsBefore: 0, eventsBefore: 0 }],
+      [0, { gold: startGold, enemiesBefore: 0, eventsBefore: 0 }],
     );
     const valueStr = value.toFixed(2);
     const entry = paths[valueStr] || [];
@@ -273,8 +273,8 @@ export default function InfoPanel({
 
   const [eliteValue, setEliteValue] = useLocalStorage('eliteValue', 1.2);
   const [eventValue, setEventValue] = useLocalStorage('eventValue', 0.8);
-  const [easyFightValue, setEasyFightValue] = useLocalStorage("easyFightValue", 1);
-  const [hardFightValue, setHardFightValue] = useLocalStorage("hardFightValue", 0.9);
+  const [easyEnemyValue, setEasyEnemyValue] = useLocalStorage("easyEnemyValue", 1);
+  const [hardEnemyValue, setHardEnemyValue] = useLocalStorage("hardEnemyValue", 0.9);
   const [restValue, setRestValue] = useLocalStorage("restValue", 1.2);
   const [shopValue, setShopValue] = useLocalStorage("shopValue", 0.3);
   const [shopGoldValue, setShopGoldValue] = useLocalStorage("shopGoldValue", 0.4);
@@ -282,9 +282,9 @@ export default function InfoPanel({
   const [treasureValue, setTreasureValue] = useLocalStorage("treasureValue", 0.8);
   const [startGold, setStartGold] = useLocalStorage("startGold", 99);
   const [goldPerElite, setGoldPerElite] = useLocalStorage("goldPerElite", 30);
-  const [goldPerFight, setGoldPerFight] = useLocalStorage("goldPerFight", 15);
-  const [fightEvents, setFightEvents] = useLocalStorage("fightEvents", 1);
-  const [fightsBeforePath, setFightsBeforePath] = useLocalStorage("fightsBeforePath", 0);
+  const [goldPerEnemy, setGoldPerEnemy] = useLocalStorage("goldPerEnemy", 15);
+  const [enemyEvents, setEnemyEvents] = useLocalStorage("enemyEvents", 1);
+  const [enemiesBeforePath, setEnemiesBeforePath] = useLocalStorage("enemiesBeforePath", 0);
 
   const [trackMostValuable, setTrackMostValuable] = useState(true);
   const startCoordinates = startCoordinate ? [startCoordinate] : map[1].map((_, ri) => [1, ri] as Coordinate);
@@ -340,21 +340,21 @@ export default function InfoPanel({
     () => {
       if (trackMostValuable) {
         setHighlightPathTypes(undefined);
-        const ranking = rankPaths(valuateRoom, map, { startGold, goldPerElite, goldPerFight, startCoordinates }, 1);
+        const ranking = rankPaths(valuateRoom, map, { startGold, goldPerElite, goldPerEnemy, startCoordinates }, 1);
         if (ranking.length > 0) {
           setHighlightedPaths(ranking[0][1]);
         }
       }
     },
     [
-      easyFightValue,
+      easyEnemyValue,
       eliteValue,
       eventValue,
-      fightEvents,
-      fightsBeforePath,
+      enemyEvents,
+      enemiesBeforePath,
       goldPerElite,
-      goldPerFight,
-      hardFightValue,
+      goldPerEnemy,
+      hardEnemyValue,
       map,
       restValue,
       shopGoldValue,
@@ -382,11 +382,11 @@ export default function InfoPanel({
       case "event":
         return eventValue;
 
-      case "fight":
-        if ((startCoordinate ? fightsBeforePath : 0) + Math.min(fightEvents, state.eventsBefore) + state.fightsBefore <= 2) {
-          return easyFightValue;
+      case "enemy":
+        if ((startCoordinate ? enemiesBeforePath : 0) + Math.min(enemyEvents, state.eventsBefore) + state.enemiesBefore <= 2) {
+          return easyEnemyValue;
         } else {
-          return hardFightValue;
+          return hardEnemyValue;
         }
 
       case "rest":
@@ -433,8 +433,8 @@ export default function InfoPanel({
       onHighlight={ setHighlightTypes }
     />
     <PathsCounter
-      label="Max fights"
-      types={ ["fight"] }
+      label="Max enemies"
+      types={ ["enemy"] }
       selected={ highlightPathTypes }
       startCoordinates={ startCoordinates }
       map={ map }
@@ -472,10 +472,10 @@ export default function InfoPanel({
 
     <p>Room values:</p>
     <p className={ styles["value-row"] }>
-      <label className={ styles["value-input-label"] }>Easy fight:</label>
-      <FloatInput value={ easyFightValue } onChange={ setEasyFightValue }/>
-      <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-right"] }>Hard fight:</label>
-      <FloatInput value={ hardFightValue } onChange={ setHardFightValue }/>
+      <label className={ styles["value-input-label"] }>Easy enemy:</label>
+      <FloatInput value={ easyEnemyValue } onChange={ setEasyEnemyValue }/>
+      <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-right"] }>Hard enemy:</label>
+      <FloatInput value={ hardEnemyValue } onChange={ setHardEnemyValue }/>
     </p>
     <p className={ styles["value-row"] }>
       <label className={ styles["value-input-label"] }>Elite:</label>
@@ -508,22 +508,22 @@ export default function InfoPanel({
       <label className={ styles["value-input-label"] }>Gold:</label>
       <FloatInput value={ startGold } onChange={ setStartGold }/>
       { ' + ' }
-      <FloatInput value={ goldPerFight } onChange={ setGoldPerFight }/>
-      { ' per fight + ' }
+      <FloatInput value={ goldPerEnemy } onChange={ setGoldPerEnemy }/>
+      { ' per enemy + ' }
       <FloatInput value={ goldPerElite } onChange={ setGoldPerElite }/>
       { ' per elite' }
     </p>
     <p className={ styles["value-row"] }>
-      <label className={ styles["value-input-label"] }>Fights in ?s:</label>
-      <FloatInput value={ fightEvents } onChange={ setFightEvents }/>
+      <label className={ styles["value-input-label"] }>Enemies in ?s:</label>
+      <FloatInput value={ enemyEvents } onChange={ setEnemyEvents }/>
     </p>
     <p className={ styles["value-row"] }>
       <label className={ styles["value-input-label"] + ' ' + styles["value-input-label-auto"] }>
-        Fights before path start:
+        Enemies before path start:
       </label>
       <FloatInput
-        value={ startCoordinate ? fightsBeforePath : 0 }
-        onChange={ startCoordinate && setFightsBeforePath }
+        value={ startCoordinate ? enemiesBeforePath : 0 }
+        onChange={ startCoordinate && setEnemiesBeforePath }
       />
     </p>
 
@@ -532,7 +532,7 @@ export default function InfoPanel({
       isTrackingMostValuable={ trackMostValuable }
       label="Most valuable paths"
       map={ map }
-      settings={{ startGold, goldPerElite, goldPerFight, startCoordinates }}
+      settings={{ startGold, goldPerElite, goldPerEnemy, startCoordinates }}
       onHighlight={ setHighlightRanked }
       setTrackMostValuable={ setTrackMostValuable }
       valueFunc={ valuateRoom }

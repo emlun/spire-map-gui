@@ -58,7 +58,10 @@ function App() {
           const mapBytes = pako.inflate(mapCompressed);
           const td = new TextDecoder();
           const mapJson = td.decode(mapBytes);
-          const mapRestored = JSON.parse(mapJson);
+          const mapRestored = JSON.parse(
+            mapJson,
+            (key, value) => key === "typ" && value === "fight" ? "enemy" : value,
+          );
           setMap(mapRestored);
           setMapMode("manual");
         } else {
