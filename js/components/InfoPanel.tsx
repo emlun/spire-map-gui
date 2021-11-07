@@ -315,36 +315,52 @@ export default function InfoPanel({
     }));
   };
 
-  const valuateRoom = (rt: RoomType, f: FloorNum, state: PathState) => {
-    switch (rt) {
-      case "elite":
-        return eliteValue;
+  const valuateRoom = useCallback(
+    (rt: RoomType, f: FloorNum, state: PathState) => {
+      switch (rt) {
+        case "elite":
+          return eliteValue;
 
-      case "event":
-        return eventValue;
+        case "event":
+          return eventValue;
 
-      case "enemy":
-        if ((startCoordinate ? enemiesBeforePath : 0) + Math.min(enemyEvents, state.eventsBefore) + state.enemiesBefore <= 2) {
-          return easyEnemyValue;
-        } else {
-          return hardEnemyValue;
-        }
+        case "enemy":
+          if ((startCoordinate ? enemiesBeforePath : 0) + Math.min(enemyEvents, state.eventsBefore) + state.enemiesBefore <= 2) {
+            return easyEnemyValue;
+          } else {
+            return hardEnemyValue;
+          }
 
-      case "rest":
-        return restValue;
+        case "rest":
+          return restValue;
 
-      case "shop":
-        return shopValue + shopGoldValue * state.gold / 100;
+        case "shop":
+          return shopValue + shopGoldValue * state.gold / 100;
 
-      case "super":
-        return superValue;
+        case "super":
+          return superValue;
 
-      case "treasure":
-        return treasureValue;
-    }
+        case "treasure":
+          return treasureValue;
+      }
 
-    return 0;
-  };
+      return 0;
+    },
+    [
+      eliteValue,
+      eventValue,
+      startCoordinate,
+      enemiesBeforePath,
+      enemyEvents,
+      easyEnemyValue,
+      hardEnemyValue,
+      restValue,
+      shopValue,
+      shopGoldValue,
+      superValue,
+      treasureValue,
+    ],
+  );
 
   useEffect(
     () => {
@@ -385,23 +401,13 @@ export default function InfoPanel({
       }
     },
     [
-      easyEnemyValue,
-      eliteValue,
-      eventValue,
-      enemyEvents,
-      enemiesBeforePath,
       goldPerElite,
       goldPerEnemy,
-      hardEnemyValue,
       map,
-      restValue,
-      shopGoldValue,
-      shopValue,
       startCoordinate,
       startGold,
-      superValue,
       trackMostValuable,
-      treasureValue,
+      valuateRoom,
     ],
   );
 
