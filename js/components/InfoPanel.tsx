@@ -381,7 +381,6 @@ export default function InfoPanel({
       if (!trackMostValuable && !highlightPathTypes) {
         setHighlightedPaths(undefined);
       }
-
     },
     [trackMostValuable]
   );
