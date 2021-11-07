@@ -308,6 +308,44 @@ export default function InfoPanel({
     setHighlightedPaths(paths);
   };
 
+  const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
+    setCustomCountTypesSelection(sel => ({
+      ...sel,
+      [rt]: selected,
+    }));
+  };
+
+  const valuateRoom = (rt: RoomType, f: FloorNum, state: PathState) => {
+    switch (rt) {
+      case "elite":
+        return eliteValue;
+
+      case "event":
+        return eventValue;
+
+      case "enemy":
+        if ((startCoordinate ? enemiesBeforePath : 0) + Math.min(enemyEvents, state.eventsBefore) + state.enemiesBefore <= 2) {
+          return easyEnemyValue;
+        } else {
+          return hardEnemyValue;
+        }
+
+      case "rest":
+        return restValue;
+
+      case "shop":
+        return shopValue + shopGoldValue * state.gold / 100;
+
+      case "super":
+        return superValue;
+
+      case "treasure":
+        return treasureValue;
+    }
+
+    return 0;
+  };
+
   useEffect(
     () => {
       if (highlightPathTypes) {
@@ -366,44 +404,6 @@ export default function InfoPanel({
       treasureValue,
     ],
   );
-
-  const setCustomCountTypes = (rt: RoomType, selected: boolean) => {
-    setCustomCountTypesSelection(sel => ({
-      ...sel,
-      [rt]: selected,
-    }));
-  };
-
-  const valuateRoom = (rt: RoomType, f: FloorNum, state: PathState) => {
-    switch (rt) {
-      case "elite":
-        return eliteValue;
-
-      case "event":
-        return eventValue;
-
-      case "enemy":
-        if ((startCoordinate ? enemiesBeforePath : 0) + Math.min(enemyEvents, state.eventsBefore) + state.enemiesBefore <= 2) {
-          return easyEnemyValue;
-        } else {
-          return hardEnemyValue;
-        }
-
-      case "rest":
-        return restValue;
-
-      case "shop":
-        return shopValue + shopGoldValue * state.gold / 100;
-
-      case "super":
-        return superValue;
-
-      case "treasure":
-        return treasureValue;
-    }
-
-    return 0;
-  };
 
   useEffect(
     () => {
