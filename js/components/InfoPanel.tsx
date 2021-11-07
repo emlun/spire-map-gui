@@ -119,18 +119,14 @@ function rankPaths(
             v + valueFunc(map[f][ri]?.typ, f, state),
             {
               ...state,
-              gold: (map[f][ri]?.typ === "shop"
-                   ? 0
-                   : (gold + (
-                     map[f][ri]?.typ === "enemy"
-                     ? goldPerEnemy
-                     : (
-                       map[f][ri]?.typ === "elite" || map[f][ri]?.typ === "super"
-                       ? goldPerElite
-                       : 0
-              )))),
               enemiesBefore: enemiesBefore + (map[f][ri]?.typ === "enemy" ? 1 : 0),
               eventsBefore: eventsBefore + (map[f][ri]?.typ === "event" ? 1 : 0),
+              gold: _({
+                shop: 0,
+                enemy: gold + goldPerEnemy,
+                elite: gold + goldPerElite,
+                "super": gold + goldPerElite,
+              }).get(map[f][ri]?.typ, gold),
             }
           ];
         }
